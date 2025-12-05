@@ -17,9 +17,10 @@ class LanguageSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final service = LanguageService.instance;
-    return ValueListenableBuilder<String>(
-      valueListenable: service.listenable,
-      builder: (context, current, _) {
+    return ListenableBuilder(
+      listenable: service,
+      builder: (context, _) {
+        final current = service.currentLanguage;
         final dropdown = DropdownButton<String>(
           value: current,
           underline: const SizedBox.shrink(),
@@ -38,7 +39,10 @@ class LanguageSelector extends StatelessWidget {
               .map(
                 (lang) => DropdownMenuItem<String>(
                   value: lang['code'],
-                  child: Text(lang['label'] ?? lang['code']!),
+                  child: Text(
+                    lang['label'] ?? lang['code']!,
+                    style: const TextStyle(color: Colors.black87),
+                  ),
                 ),
               )
               .toList(),
@@ -54,11 +58,7 @@ class LanguageSelector extends StatelessWidget {
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.language,
-                color: iconColor ?? Colors.white,
-                size: 20,
-              ),
+              Icon(Icons.language, color: iconColor ?? Colors.white, size: 20),
               const SizedBox(width: 4),
               dropdown,
             ],

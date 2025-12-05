@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:fasalmitra/screens/home_screen.dart';
+import 'package:fasalmitra/screens/home_page.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
@@ -36,12 +36,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   @override
   void initState() {
     super.initState();
-    final token = AuthService.instance.backendToken;
-    if (token != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-      });
-    }
     _loadCaptcha();
   }
 
@@ -161,7 +155,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       if (!mounted) return;
       Navigator.of(
         context,
-      ).pushNamedAndRemoveUntil(HomeScreen.routeName, (_) => false);
+      ).pushNamedAndRemoveUntil(HomePage.routeName, (_) => false);
     } catch (err) {
       if (!mounted) return;
       ScaffoldMessenger.of(

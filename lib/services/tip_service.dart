@@ -37,7 +37,7 @@ class TipService {
     }
 
     _setTipFor(LanguageService.instance.currentLanguage);
-    LanguageService.instance.listenable.addListener(_handleLanguageChange);
+    LanguageService.instance.addListener(_handleLanguageChange);
 
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 8), (_) {
@@ -69,6 +69,6 @@ class TipService {
 
   void dispose() {
     _timer?.cancel();
-    LanguageService.instance.listenable.removeListener(_handleLanguageChange);
+    LanguageService.instance.removeListener(_handleLanguageChange);
   }
 }

@@ -37,6 +37,8 @@ dependencies:
   firebase_auth: ^5.3.0
   http: ^1.2.2
   shared_preferences: ^2.3.2
+  url_launcher: ^6.3.2
+  translator: ^1.0.4+1
 
 dev_dependencies:
   flutter_test:
@@ -62,7 +64,9 @@ flutter:
 
   assets:
     - assets/images/grass.png
+    - assets/images/
     - assets/data/farmer_tips.json
+    - assets/images/banners/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

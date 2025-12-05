@@ -1,38 +1,80 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:translator/translator.dart';
 
-class LanguageService {
+class LanguageService extends ChangeNotifier {
   LanguageService._();
 
   static final LanguageService instance = LanguageService._();
-  static const _prefsKey = 'app_language';
+  static const _prefsKey = 'app_language_v1';
 
-  final ValueNotifier<String> _languageNotifier = ValueNotifier('en');
+  String _currentLanguage = 'hi';
   late SharedPreferences _prefs;
+  final GoogleTranslator _translator = GoogleTranslator();
+
+  // Cache for dynamic translations: {'hi': {'Hello': 'नमस्ते'}}
+  final Map<String, Map<String, String>> _dynamicCache = {};
+  // Set to track pending translations to avoid duplicate requests
+  final Set<String> _pendingTranslations = {};
 
   Future<void> init(SharedPreferences prefs) async {
     _prefs = prefs;
     final saved = prefs.getString(_prefsKey);
     if (saved != null && _strings.containsKey(saved)) {
-      _languageNotifier.value = saved;
+      _currentLanguage = saved;
     }
   }
 
-  ValueListenable<String> get listenable => _languageNotifier;
-  String get currentLanguage => _languageNotifier.value;
+  String get currentLanguage => _currentLanguage;
 
   Future<void> changeLanguage(String code) async {
     if (!_strings.containsKey(code)) return;
-    if (_languageNotifier.value == code) return;
-    _languageNotifier.value = code;
+    if (_currentLanguage == code) return;
+    _currentLanguage = code;
     await _prefs.setString(_prefsKey, code);
+    notifyListeners();
   }
 
   String t(String key) {
-    return _strings[_languageNotifier.value]?[key] ??
-        _strings['en']?[key] ??
-        key;
+    // 1. Check hardcoded strings
+    if (_strings[_currentLanguage]?.containsKey(key) ?? false) {
+      return _strings[_currentLanguage]![key]!;
+    }
+
+    // 2. Check dynamic cache
+    if (_dynamicCache[_currentLanguage]?.containsKey(key) ?? false) {
+      return _dynamicCache[_currentLanguage]![key]!;
+    }
+
+    // 3. Fetch translation dynamically
+    _fetchTranslation(key, _currentLanguage);
+
+    // Return original key while loading
+    return key;
+  }
+
+  Future<void> _fetchTranslation(String text, String targetLang) async {
+    final cacheKey = '$targetLang:$text';
+    if (_pendingTranslations.contains(cacheKey)) return;
+
+    _pendingTranslations.add(cacheKey);
+
+    try {
+      final translation = await _translator.translate(text, to: targetLang);
+
+      if (_dynamicCache[targetLang] == null) {
+        _dynamicCache[targetLang] = {};
+      }
+      _dynamicCache[targetLang]![text] = translation.text;
+
+      // Notify listeners to update UI
+      notifyListeners();
+    } catch (e) {
+      print('Translation error for "$text" to $targetLang: $e');
+    } finally {
+      _pendingTranslations.remove(cacheKey);
+    }
   }
 
   static List<Locale> get supportedLocales =>
@@ -55,19 +97,19 @@ const Map<String, Map<String, String>> _strings = {
     'register': 'Register',
     'home': 'Home',
     'fullName': 'Full Name',
-    'mobile': 'Mobile no.',
+    'mobile': 'Mobile No.',
     'captcha': 'Captcha',
-    'captchaText': 'Captcha text',
+    'captchaText': 'Captcha Text',
     'sendOtp': 'Send OTP',
     'registerCta': 'Register',
-    'newUser': 'New user? Register',
-    'alreadyRegistered': 'Already registered? Login',
+    'newUser': 'New User? Register',
+    'alreadyRegistered': 'Already Registered? Login',
     'enterOtp': 'Enter OTP',
     'otpPlaceholder': '••••••',
-    'enterPhone': 'Enter your phone number (with country code)',
-    'otpSentPrefix': 'OTP sent to',
-    'captchaNotReady': 'Captcha not ready yet',
-    'captchaEnter': 'Enter captcha text',
+    'enterPhone': 'Enter Your Phone Number (with Country Code)',
+    'otpSentPrefix': 'OTP Sent to',
+    'captchaNotReady': 'Captcha Not Ready Yet',
+    'captchaEnter': 'Enter Captcha Text',
     'aboutUs': 'About Us',
     'customerCare': 'Customer Care',
     'listProduct': 'List Product',
@@ -81,6 +123,20 @@ const Map<String, Map<String, String>> _strings = {
     'qty': 'Qty',
     'processed': 'Processed',
     'unknownFarmer': 'Unknown Farmer',
+    'seedPriceMarket': 'Seed Price Market',
+    'sellOilseed': 'Sell Oilseed',
+    'buyOilseed': 'Buy Oilseed',
+    'myOrders': 'My Orders',
+    'orderTracking': 'Order Tracking',
+    'searchOilSeed': 'Search Oil Seed',
+    'searchPlaceholder': 'Search for seeds, crops...',
+    'recentPost': 'Recent Post',
+    'menu': 'Menu',
+    'usefulWebsites': 'Useful Websites',
+    'pmKisan': 'PM Kisan Samman Nidhi',
+    'pmFasalBima': 'PM Fasal Bima Yojana',
+    'enam': 'e-NAM',
+    'soilHealth': 'Soil Health Card',
   },
   'hi': {
     'welcome': 'आपका स्वागत है',
@@ -115,6 +171,20 @@ const Map<String, Map<String, String>> _strings = {
     'qty': 'मात्रा',
     'processed': 'संसाधित',
     'unknownFarmer': 'अज्ञात किसान',
+    'seedPriceMarket': 'बीज मूल्य बाज़ार',
+    'sellOilseed': 'तिलहन बेचें',
+    'buyOilseed': 'तिलहन खरीदें',
+    'myOrders': 'मेरे ऑर्डर',
+    'orderTracking': 'ऑर्डर ट्रैकिंग',
+    'searchOilSeed': 'तिलहन खोजें',
+    'searchPlaceholder': 'बीज, फसलें खोजें...',
+    'recentPost': 'हालिया पोस्ट',
+    'menu': 'मेनू',
+    'usefulWebsites': 'उपयोगी वेबसाइटें',
+    'pmKisan': 'पीएम किसान सम्मान निधि',
+    'pmFasalBima': 'पीएम फसल बीमा योजना',
+    'enam': 'ई-नाम (e-NAM)',
+    'soilHealth': 'मृदा स्वास्थ्य कार्ड',
   },
   'mr': {
     'welcome': 'आपला स्वागत आहे',

@@ -5,14 +5,22 @@ import 'package:fasalmitra/services/language_service.dart';
 class FeatureCardGrid extends StatelessWidget {
   const FeatureCardGrid({
     super.key,
-    this.onListProduct,
-    this.onQualityCheck,
-    this.onSearchSeeds,
+    this.onSeedPriceMarket,
+    this.onSellOilseed,
+    this.onBuyOilseed,
+    this.onMyOrders,
+    this.onOrderTracking,
+    this.onSearchOilSeed,
+    this.onRecentPost,
   });
 
-  final VoidCallback? onListProduct;
-  final VoidCallback? onQualityCheck;
-  final VoidCallback? onSearchSeeds;
+  final VoidCallback? onSeedPriceMarket;
+  final VoidCallback? onSellOilseed;
+  final VoidCallback? onBuyOilseed;
+  final VoidCallback? onMyOrders;
+  final VoidCallback? onOrderTracking;
+  final VoidCallback? onSearchOilSeed;
+  final VoidCallback? onRecentPost;
 
   @override
   Widget build(BuildContext context) {
@@ -20,59 +28,75 @@ class FeatureCardGrid extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
+        final isWide = constraints.maxWidth > 900;
+        final cards = [
+          _FeatureCard(
+            title: lang.t('seedPriceMarket'),
+            icon: Icons.currency_rupee,
+            onTap: onSeedPriceMarket,
+          ),
+          _FeatureCard(
+            title: lang.t('sellOilseed'),
+            icon: Icons.sell,
+            onTap: onSellOilseed,
+          ),
+          _FeatureCard(
+            title: lang.t('buyOilseed'),
+            icon: Icons.shopping_cart,
+            onTap: onBuyOilseed,
+          ),
+          _FeatureCard(
+            title: lang.t('myOrders'),
+            icon: Icons.list_alt,
+            onTap: onMyOrders,
+          ),
+          _FeatureCard(
+            title: lang.t('orderTracking'),
+            icon: Icons.local_shipping,
+            onTap: onOrderTracking,
+          ),
+          _FeatureCard(
+            title: lang.t('searchOilSeed'),
+            icon: Icons.search,
+            onTap: onSearchOilSeed,
+          ),
+          _FeatureCard(
+            title: lang.t('recentPost'),
+            icon: Icons.article,
+            onTap: onRecentPost,
+          ),
+        ];
 
+        if (isWide) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: cards
+                  .map(
+                    (card) => Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: card,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          );
+        }
+
+        // Mobile layout: 2 columns
         return Padding(
-          padding: const EdgeInsets.all(16),
-          child: isWide
-              ? Row(
-                  children: [
-                    Expanded(
-                      child: _FeatureCard(
-                        title: lang.t('listProduct'),
-                        icon: Icons.add_circle_outline,
-                        onTap: onListProduct,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _FeatureCard(
-                        title: lang.t('qualityCheck'),
-                        icon: Icons.verified_outlined,
-                        onTap: onQualityCheck,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _FeatureCard(
-                        title: lang.t('searchSeeds'),
-                        icon: Icons.search,
-                        onTap: onSearchSeeds,
-                      ),
-                    ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    _FeatureCard(
-                      title: lang.t('listProduct'),
-                      icon: Icons.add_circle_outline,
-                      onTap: onListProduct,
-                    ),
-                    const SizedBox(height: 16),
-                    _FeatureCard(
-                      title: lang.t('qualityCheck'),
-                      icon: Icons.verified_outlined,
-                      onTap: onQualityCheck,
-                    ),
-                    const SizedBox(height: 16),
-                    _FeatureCard(
-                      title: lang.t('searchSeeds'),
-                      icon: Icons.search,
-                      onTap: onSearchSeeds,
-                    ),
-                  ],
-                ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.count(
+            crossAxisCount: 2,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.2,
+            children: cards,
+          ),
         );
       },
     );
@@ -80,11 +104,7 @@ class FeatureCardGrid extends StatelessWidget {
 }
 
 class _FeatureCard extends StatelessWidget {
-  const _FeatureCard({
-    required this.title,
-    required this.icon,
-    this.onTap,
-  });
+  const _FeatureCard({required this.title, required this.icon, this.onTap});
 
   final String title;
   final IconData icon;
@@ -96,9 +116,7 @@ class _FeatureCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -107,11 +125,7 @@ class _FeatureCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 48,
-                color: theme.colorScheme.primary,
-              ),
+              Icon(icon, size: 48, color: theme.colorScheme.primary),
               const SizedBox(height: 16),
               Text(
                 title,
@@ -127,4 +141,3 @@ class _FeatureCard extends StatelessWidget {
     );
   }
 }
-

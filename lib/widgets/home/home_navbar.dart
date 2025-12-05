@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:fasalmitra/widgets/language_selector.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
@@ -71,10 +70,7 @@ class HomeNavbar extends StatelessWidget {
                     ),
                     Text(
                       'A',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                     IconButton(
                       onPressed: fontSize.increase,
@@ -126,4 +122,3 @@ class HomeNavbar extends StatelessWidget {
     );
   }
 }
-

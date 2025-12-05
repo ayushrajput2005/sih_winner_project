@@ -14,9 +14,12 @@ class MarketplaceScreen extends StatefulWidget {
 class _MarketplaceScreenState extends State<MarketplaceScreen> {
   String _sortBy = 'distance';
   String? _categoryFilter;
+  String? _searchQuery;
   DateTime? _dateFrom;
   DateTime? _dateTo;
   late Future<List<ListingData>> _listingsFuture;
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
 
   final List<String> _categories = ['Seeds', 'Grains', 'Vegetables', 'Fruits'];
   final List<Map<String, String>> _sortOptions = [
@@ -57,6 +60,12 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
         }
       }
 
+      if (args['focusSearch'] == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _searchFocusNode.requestFocus();
+        });
+      }
+
       if (needsReload) {
         setState(() {});
         _loadListings();
@@ -64,11 +73,19 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
   void _loadListings() {
     setState(() {
       _listingsFuture = ListingService.instance.getMarketplaceListings(
         sortBy: _sortBy,
         categoryFilter: _categoryFilter,
+        searchQuery: _searchQuery,
         dateFrom: _dateFrom,
         dateTo: _dateTo,
       );
@@ -97,8 +114,10 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   void _clearFilters() {
     setState(() {
       _categoryFilter = null;
+      _searchQuery = null;
       _dateFrom = null;
       _dateTo = null;
+      _searchController.clear();
     });
     _loadListings();
   }
@@ -125,6 +144,36 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Search Bar
+                TextField(
+                  controller: _searchController,
+                  focusNode: _searchFocusNode,
+                  decoration: InputDecoration(
+                    hintText: 'Search for seeds, crops...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = null);
+                              _loadListings();
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  ),
+                  onSubmitted: (value) {
+                    setState(() => _searchQuery = value.trim());
+                    _loadListings();
+                  },
+                ),
+                const SizedBox(height: 16),
                 // Sort Dropdown
                 Row(
                   children: [

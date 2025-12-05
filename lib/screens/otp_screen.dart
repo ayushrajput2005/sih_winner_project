@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fasalmitra/screens/home_screen.dart';
+import 'package:fasalmitra/screens/home_page.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 
 class OTPScreenArgs {
@@ -47,7 +47,7 @@ class _OTPScreenState extends State<OTPScreen> {
       if (!mounted) return;
       Navigator.of(
         context,
-      ).pushNamedAndRemoveUntil(HomeScreen.routeName, (route) => false);
+      ).pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
     } catch (err) {
       messenger.showSnackBar(SnackBar(content: Text(err.toString())));
     } finally {

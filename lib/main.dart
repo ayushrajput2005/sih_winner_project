@@ -4,7 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fasalmitra/firebase_options.dart';
 import 'package:fasalmitra/screens/home_page.dart';
-import 'package:fasalmitra/screens/home_screen.dart';
+
 import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
 import 'package:fasalmitra/screens/marketplace_screen.dart';
@@ -18,7 +18,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final prefs = await SharedPreferences.getInstance();
   await AuthService.instance.init(prefs);
-  await AuthService.instance.loginTestUser(); // Auto-login for testing
+
   await LanguageService.instance.init(prefs);
   await TipService.instance.init();
 
@@ -30,9 +30,10 @@ class FasalMitraApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<String>(
-      valueListenable: LanguageService.instance.listenable,
-      builder: (context, localeCode, _) {
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final localeCode = LanguageService.instance.currentLanguage;
         return MaterialApp(
           title: 'FasalMitra',
           debugShowCheckedModeBanner: false,
@@ -54,7 +55,7 @@ class FasalMitraApp extends StatelessWidget {
           routes: {
             PhoneLoginScreen.routeName: (_) => const PhoneLoginScreen(),
             RegisterScreen.routeName: (_) => const RegisterScreen(),
-            HomeScreen.routeName: (_) => const HomeScreen(),
+
             HomePage.routeName: (_) => const HomePage(),
             CreateListingScreen.routeName: (_) => const CreateListingScreen(),
             MarketplaceScreen.routeName: (_) => const MarketplaceScreen(),

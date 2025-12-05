@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
@@ -10,7 +11,7 @@ import 'package:fasalmitra/widgets/home/home_navbar.dart';
 import 'package:fasalmitra/widgets/home/secondary_navbar.dart';
 import 'package:fasalmitra/widgets/home/banner_carousel.dart';
 import 'package:fasalmitra/widgets/home/feature_card_grid.dart';
-import 'package:fasalmitra/widgets/home/recent_listings_section.dart';
+import 'package:fasalmitra/widgets/home/home_footer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -70,13 +71,24 @@ class _HomePageState extends State<HomePage> {
                         const BannerCarousel(),
                         const SizedBox(height: 32),
                         FeatureCardGrid(
-                          onListProduct: _handleListProduct,
-                          onQualityCheck: _handleQualityCheck,
-                          onSearchSeeds: _handleSearchSeeds,
+                          onSeedPriceMarket: _handleSeedPriceMarket,
+                          onSellOilseed: _handleListProduct,
+                          onBuyOilseed: _handleMarketplace,
+                          onMyOrders: _handleMyOrders,
+                          onOrderTracking: _handleOrderTracking,
+                          onSearchOilSeed: _handleSearchOilSeed,
+                          onRecentPost: _handleRecentPost,
                         ),
                         const SizedBox(height: 32),
-                        const RecentListingsSection(),
-                        const SizedBox(height: 100), // Space for FAB
+                        HomeFooter(
+                          onSeedPriceMarket: _handleSeedPriceMarket,
+                          onSellOilseed: _handleListProduct,
+                          onBuyOilseed: _handleMarketplace,
+                          onMyOrders: _handleMyOrders,
+                          onOrderTracking: _handleOrderTracking,
+                          onSearchOilSeed: _handleSearchOilSeed,
+                          onRecentPost: _handleRecentPost,
+                        ),
                       ],
                     ),
                   ),
@@ -180,17 +192,46 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _handleQualityCheck() {
-    // TODO: Navigate to quality check page
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Quality Check coming soon')));
+  void _handleSeedPriceMarket() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Seed Price Market coming soon')),
+    );
   }
 
-  void _handleSearchSeeds() {
-    // TODO: Navigate to search seeds page
+  void _handleSearchOilSeed() {
+    Navigator.of(
+      context,
+    ).pushNamed(MarketplaceScreen.routeName, arguments: {'focusSearch': true});
+  }
+
+  Future<void> _handleRecentPost() async {
+    const url = 'https://fasalmitra.com/blog';
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Could not launch blog')));
+      }
+    }
+  }
+
+  void _handleMyOrders() {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Search Seeds coming soon')));
+    ).showSnackBar(const SnackBar(content: Text('My Orders coming soon')));
+  }
+
+  void _handleOrderTracking() {
+    final user = AuthService.instance.cachedUser;
+    if (user == null) {
+      Navigator.of(context).pushNamed(PhoneLoginScreen.routeName);
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Order Tracking coming soon')));
   }
 }

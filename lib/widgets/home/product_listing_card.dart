@@ -16,9 +16,9 @@ class ProductListingCard extends StatelessWidget {
         ? listing.imageUrls
         : ['https://via.placeholder.com/300x200?text=No+Image'];
 
-    return ValueListenableBuilder<String>(
-      valueListenable: LanguageService.instance.listenable,
-      builder: (context, lang, child) {
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, child) {
         final t = LanguageService.instance.t;
         return Card(
           elevation: 2,

@@ -127,6 +127,7 @@ class ListingService {
   Future<List<ListingData>> getMarketplaceListings({
     String sortBy = 'distance', // 'distance', 'price_high', 'price_low'
     String? categoryFilter,
+    String? searchQuery,
     DateTime? dateFrom,
     DateTime? dateTo,
   }) async {
@@ -135,6 +136,9 @@ class ListingService {
       final queryParams = <String, String>{'sort': sortBy};
       if (categoryFilter != null && categoryFilter.isNotEmpty) {
         queryParams['category'] = categoryFilter;
+      }
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        queryParams['q'] = searchQuery;
       }
       if (dateFrom != null) {
         queryParams['date_from'] = dateFrom.toIso8601String();
@@ -186,6 +190,14 @@ class ListingService {
         distance: 2.0 + (i * 3.5),
       ),
     );
+
+    // Apply search filter
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      final query = searchQuery.toLowerCase();
+      listings = listings
+          .where((listing) => listing.title.toLowerCase().contains(query))
+          .toList();
+    }
 
     // Apply category filter
     if (categoryFilter != null && categoryFilter.isNotEmpty) {

@@ -1,86 +1,97 @@
 import 'package:flutter/material.dart';
 
-import 'package:fasalmitra/services/language_service.dart';
-
 class SecondaryNavbar extends StatelessWidget {
   const SecondaryNavbar({
     super.key,
-    this.onListProduct,
-    this.onMarketplace,
-    this.onRecentListings,
-    this.onSearchByCategory,
+    required this.onListProduct,
+    required this.onMarketplace,
+    required this.onRecentListings,
+    required this.onSearchByCategory,
   });
 
-  final VoidCallback? onListProduct;
-  final VoidCallback? onMarketplace;
-  final VoidCallback? onRecentListings;
-  final VoidCallback? onSearchByCategory;
+  final VoidCallback onListProduct;
+  final VoidCallback onMarketplace;
+  final VoidCallback onRecentListings;
+  final VoidCallback onSearchByCategory;
 
   @override
   Widget build(BuildContext context) {
-    final lang = LanguageService.instance;
+    final theme = Theme.of(context);
 
     return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade300),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              _NavItem(
-                label: lang.t('listProduct'),
-                onTap: onListProduct,
-              ),
-              _NavItem(
-                label: lang.t('marketplace'),
-                onTap: onMarketplace,
-              ),
-              _NavItem(
-                label: lang.t('recentListings'),
-                onTap: onRecentListings,
-              ),
-              _NavItem(
-                label: lang.t('searchByCategory'),
-                onTap: onSearchByCategory,
-              ),
-            ],
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 2),
           ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(
+            context,
+            icon: Icons.add_circle_outline,
+            label: 'Sell',
+            onTap: onListProduct,
+            color: theme.colorScheme.primary,
+          ),
+          _buildNavItem(
+            context,
+            icon: Icons.storefront_outlined,
+            label: 'Buy',
+            onTap: onMarketplace,
+            color: theme.colorScheme.primary,
+          ),
+          _buildNavItem(
+            context,
+            icon: Icons.new_releases_outlined,
+            label: 'New',
+            onTap: onRecentListings,
+            color: theme.colorScheme.primary,
+          ),
+          _buildNavItem(
+            context,
+            icon: Icons.category_outlined,
+            label: 'Categories',
+            onTap: onSearchByCategory,
+            color: theme.colorScheme.primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-
-class _NavItem extends StatelessWidget {
-  const _NavItem({required this.label, this.onTap});
-
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 24),
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-

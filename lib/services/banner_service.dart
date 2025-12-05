@@ -4,12 +4,14 @@ class BannerData {
     required this.title,
     this.imageUrl,
     this.description,
+    this.linkUrl,
   });
 
   final String id;
   final String title;
   final String? imageUrl;
   final String? description;
+  final String? linkUrl;
 }
 
 class BannerService {
@@ -25,18 +27,17 @@ class BannerService {
     return [
       const BannerData(
         id: '1',
-        title: 'Trending OilSeeds / Data / Images',
+        title: 'Trending OilSeeds',
         description: 'Discover the latest trends in oilseeds',
+        imageUrl: 'assets/images/banners/banner1.jpg',
+        linkUrl: 'https://example.com/banner1', // Placeholder link
       ),
       const BannerData(
         id: '2',
-        title: 'Featured Products',
-        description: 'Check out our featured collection',
-      ),
-      const BannerData(
-        id: '3',
-        title: 'Special Offers',
-        description: 'Limited time deals for farmers',
+        title: 'PMFBY',
+        description: 'PMFBY Yojna',
+        imageUrl: 'assets/images/banners/banner2.jpg',
+        linkUrl: 'https://pmfby.gov.in/', // Placeholder link
       ),
     ];
   }
@@ -50,4 +51,3 @@ class BannerService {
     }
   }
 }
-
