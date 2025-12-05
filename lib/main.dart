@@ -9,6 +9,10 @@ import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
 import 'package:fasalmitra/screens/marketplace_screen.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
+import 'package:fasalmitra/screens/cart_screen.dart';
+import 'package:fasalmitra/screens/account_screen.dart';
+import 'package:fasalmitra/screens/my_orders_screen.dart';
+import 'package:fasalmitra/screens/orders_received_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/tip_service.dart';
@@ -53,12 +57,17 @@ class FasalMitraApp extends StatelessWidget {
           ),
           home: const HomePage(),
           routes: {
-            PhoneLoginScreen.routeName: (_) => const PhoneLoginScreen(),
-            RegisterScreen.routeName: (_) => const RegisterScreen(),
-
-            HomePage.routeName: (_) => const HomePage(),
-            CreateListingScreen.routeName: (_) => const CreateListingScreen(),
-            MarketplaceScreen.routeName: (_) => const MarketplaceScreen(),
+            PhoneLoginScreen.routeName: (context) => const PhoneLoginScreen(),
+            RegisterScreen.routeName: (context) => const RegisterScreen(),
+            HomePage.routeName: (context) => const HomePage(),
+            CreateListingScreen.routeName: (context) =>
+                const CreateListingScreen(),
+            MarketplaceScreen.routeName: (context) => const MarketplaceScreen(),
+            CartScreen.routeName: (context) => const CartScreen(),
+            AccountScreen.routeName: (context) => const AccountScreen(),
+            MyOrdersScreen.routeName: (context) => const MyOrdersScreen(),
+            OrdersReceivedScreen.routeName: (context) =>
+                const OrdersReceivedScreen(),
           },
         );
       },

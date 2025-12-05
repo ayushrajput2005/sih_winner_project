@@ -127,6 +127,7 @@ class AuthService {
       'name': 'Test Farmer',
       'phone': '+919876543210',
       'role': 'farmer',
+      'state': 'Maharashtra',
     };
     await _prefs.setString(_tokenKey, _backendToken!);
   }

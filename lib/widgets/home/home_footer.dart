@@ -190,6 +190,19 @@ class HomeFooter extends StatelessWidget {
             fit: BoxFit.contain,
           ),
         ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Image.asset(
+            'assets/images/sih.png',
+            height: 80,
+            fit: BoxFit.contain,
+          ),
+        ),
       ],
     );
   }

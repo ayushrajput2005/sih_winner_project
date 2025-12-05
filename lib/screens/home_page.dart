@@ -199,9 +199,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleSearchOilSeed() {
-    Navigator.of(
-      context,
-    ).pushNamed(MarketplaceScreen.routeName, arguments: {'focusSearch': true});
+    Navigator.of(context).pushNamed(
+      MarketplaceScreen.routeName,
+      arguments: {'focusSearch': true, 'category': 'Seeds'},
+    );
   }
 
   Future<void> _handleRecentPost() async {

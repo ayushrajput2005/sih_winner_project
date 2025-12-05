@@ -39,6 +39,20 @@ class BannerService {
         imageUrl: 'assets/images/banners/banner2.jpg',
         linkUrl: 'https://pmfby.gov.in/', // Placeholder link
       ),
+      const BannerData(
+        id: '3',
+        title: 'New Arrivals',
+        description: 'Check out new products',
+        imageUrl: 'assets/images/banners/banner3.jpg',
+        linkUrl: 'https://example.com/banner3',
+      ),
+      const BannerData(
+        id: '4',
+        title: 'Special Offer',
+        description: 'Limited time offers',
+        imageUrl: 'assets/images/banners/banner4.png',
+        linkUrl: 'https://example.com/banner4',
+      ),
     ];
   }
 

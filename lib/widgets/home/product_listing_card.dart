@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fasalmitra/services/listing_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
+import 'package:fasalmitra/services/cart_service.dart';
 
 class ProductListingCard extends StatelessWidget {
   const ProductListingCard({super.key, required this.listing, this.onTap});
@@ -267,27 +268,65 @@ class ProductListingCard extends StatelessWidget {
 
                         // Buy Button
                         SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Navigate to payment gateway
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Initiating Purchase...'),
-                                  duration: Duration(seconds: 1),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    // Add to cart
+                                    CartService.instance.addToCart(listing);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          '${listing.title} added to cart',
+                                        ),
+                                        duration: const Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                  child: const Icon(
+                                    Icons.add_shopping_cart,
+                                    size: 18,
+                                  ),
                                 ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
                               ),
-                              visualDensity: VisualDensity.compact,
-                            ),
-                            child: Text(t('buyNow')),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                flex: 2,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Navigate to payment gateway
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Initiating Purchase...'),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: theme.colorScheme.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                  child: Text(t('buyNow')),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

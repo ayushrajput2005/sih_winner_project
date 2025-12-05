@@ -116,6 +116,26 @@ class HomeNavbar extends StatelessWidget {
               ),
               child: Text(lang.t('register')),
             ),
+
+            const SizedBox(width: 8),
+
+            // Cart Icon
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/cart');
+              },
+              icon: const Icon(Icons.shopping_cart, color: Colors.white),
+              tooltip: 'Cart',
+            ),
+
+            // Profile Icon
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/account');
+              },
+              icon: const Icon(Icons.person, color: Colors.white),
+              tooltip: 'Account',
+            ),
           ],
         ),
       ),
