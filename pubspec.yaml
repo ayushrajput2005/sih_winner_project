@@ -41,6 +41,8 @@ dependencies:
   shared_preferences: ^2.3.2
   url_launcher: ^6.3.2
   translator: ^1.0.4+1
+  fl_chart: ^0.68.0
+  marquee: ^2.2.0
 
 dev_dependencies:
   flutter_test:

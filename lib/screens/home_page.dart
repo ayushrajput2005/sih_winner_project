@@ -5,6 +5,7 @@ import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
 import 'package:fasalmitra/screens/marketplace_screen.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
+import 'package:fasalmitra/screens/price_prediction_screen.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
@@ -194,9 +195,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleSeedPriceMarket() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Seed Price Market coming soon')),
-    );
+    Navigator.of(context).pushNamed(PricePredictionScreen.routeName);
   }
 
   void _handleSearchOilSeed() {

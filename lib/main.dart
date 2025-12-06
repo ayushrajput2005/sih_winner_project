@@ -15,6 +15,7 @@ import 'package:fasalmitra/screens/cart_screen.dart';
 import 'package:fasalmitra/screens/account_screen.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
 import 'package:fasalmitra/screens/orders_received_screen.dart';
+import 'package:fasalmitra/screens/price_prediction_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/tip_service.dart';
@@ -34,6 +35,28 @@ Future<void> main() async {
 
   await LanguageService.instance.init(prefs);
   await TipService.instance.init();
+
+  // Create test user if not exists
+  try {
+    await AuthService.instance.signUpWithEmailPassword(
+      email: 'test@email.com',
+      password: 'Pass@123',
+    );
+    // If successful, also create profile in Firestore
+    final user = AuthService.instance.currentUser;
+    if (user != null) {
+      await AuthService.instance.registerUser(
+        uid: user.uid,
+        name: 'Test Tester',
+        email: 'test@email.com',
+        phone: '1234567890',
+        state: 'Maharashtra',
+      );
+      print('Test user created successfully');
+    }
+  } catch (e) {
+    print('Test user creation skipped (likely already exists): $e');
+  }
 
   runApp(const FasalMitraApp());
 }
@@ -80,6 +103,8 @@ class FasalMitraApp extends StatelessWidget {
             MyOrdersScreen.routeName: (context) => const MyOrdersScreen(),
             OrdersReceivedScreen.routeName: (context) =>
                 const OrdersReceivedScreen(),
+            PricePredictionScreen.routeName: (context) =>
+                const PricePredictionScreen(),
           },
         );
       },
