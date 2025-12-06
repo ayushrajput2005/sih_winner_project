@@ -1,6 +1,7 @@
 import 'package:fasalmitra/services/api.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/cart_service.dart';
+import 'package:flutter/foundation.dart';
 
 class OrderService {
   OrderService._();
@@ -57,7 +58,7 @@ class OrderService {
       }
       return [];
     } catch (e) {
-      print('Error fetching orders: $e');
+      debugPrint('Error fetching orders: $e');
       return [];
     }
   }

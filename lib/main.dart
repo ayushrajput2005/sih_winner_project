@@ -37,7 +37,7 @@ Future<void> main() async {
     //   mobile: '1234567890'
     // );
   } catch (e) {
-    print('Test user creation skipped: $e');
+    debugPrint('Test user creation skipped: $e');
   }
 
   runApp(const FasalMitraApp());

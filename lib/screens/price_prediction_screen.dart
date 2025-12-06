@@ -33,7 +33,6 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = LanguageService.instance;
     final primaryColor = Theme.of(context).colorScheme.primary;
 
     return AnimatedBuilder(
@@ -282,7 +281,7 @@ class _DetailedCropCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -309,7 +308,7 @@ class _DetailedCropCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: _getRiskColor(riskLevel).withOpacity(0.1),
+                  color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: _getRiskColor(riskLevel)),
                 ),
@@ -354,26 +353,30 @@ class _DetailedCropCard extends StatelessWidget {
                           sideTitles: SideTitles(
                             showTitles: true,
                             getTitlesWidget: (val, meta) {
-                              if (val == 0)
+                              if (val == 0) {
                                 return Text(
                                   lang.t('now'),
                                   style: const TextStyle(fontSize: 10),
                                 );
-                              if (val == 1)
+                              }
+                              if (val == 1) {
                                 return Text(
                                   lang.t('1m'),
                                   style: const TextStyle(fontSize: 10),
                                 );
-                              if (val == 3)
+                              }
+                              if (val == 3) {
                                 return Text(
                                   lang.t('3m'),
                                   style: const TextStyle(fontSize: 10),
                                 );
-                              if (val == 6)
+                              }
+                              if (val == 6) {
                                 return Text(
                                   lang.t('6m'),
                                   style: const TextStyle(fontSize: 10),
                                 );
+                              }
                               return const SizedBox();
                             },
                           ),
@@ -408,7 +411,7 @@ class _DetailedCropCard extends StatelessWidget {
                           belowBarData: BarAreaData(
                             show: true,
                             color: (isUrgent ? Colors.red : Colors.green)
-                                .withOpacity(0.1),
+                                .withValues(alpha: 0.1),
                           ),
                         ),
                       ],

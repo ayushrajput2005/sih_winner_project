@@ -237,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   key: ValueKey(tip),
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.15),
+                                    color: Colors.white.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
@@ -321,9 +321,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         suffixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty)
+                        if (value == null || value.trim().isEmpty) {
                           return 'Email is required';
-                        if (!value.contains('@')) return 'Enter a valid email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Enter a valid email';
+                        }
                         return null;
                       },
                     ),
@@ -340,11 +343,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty)
+                        if (value == null || value.trim().isEmpty) {
                           return 'Mobile number is required';
+                        }
                         // Simple validation, just length
-                        if (value.length < 10)
+                        if (value.length < 10) {
                           return 'Enter a valid mobile number';
+                        }
                         return null;
                       },
                     ),
@@ -352,6 +357,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     // State
                     DropdownButtonFormField<String>(
+                      // ignore: deprecated_member_use
                       value: _selectedState,
                       decoration: InputDecoration(
                         labelText: 'State',
@@ -397,10 +403,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Password is required';
-                        if (value.length < 6)
+                        }
+                        if (value.length < 6) {
                           return 'Password must be at least 6 characters';
+                        }
                         return null;
                       },
                     ),

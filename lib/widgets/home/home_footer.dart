@@ -70,7 +70,7 @@ class HomeFooter extends StatelessWidget {
         Text(
           lang.t('menu').toUpperCase(),
           style: TextStyle(
-            color: textColor.withOpacity(0.9),
+            color: textColor.withValues(alpha: 0.9),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -95,7 +95,7 @@ class HomeFooter extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: textColor.withOpacity(0.6),
+            color: textColor.withValues(alpha: 0.6),
             fontSize: 13,
             fontWeight: FontWeight.w300,
           ),
@@ -111,7 +111,7 @@ class HomeFooter extends StatelessWidget {
         Text(
           lang.t('usefulWebsites').toUpperCase(),
           style: TextStyle(
-            color: textColor.withOpacity(0.9),
+            color: textColor.withValues(alpha: 0.9),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -150,7 +150,7 @@ class HomeFooter extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: textColor.withOpacity(0.6),
+            color: textColor.withValues(alpha: 0.6),
             fontSize: 13,
             fontWeight: FontWeight.w300,
           ),

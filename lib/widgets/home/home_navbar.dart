@@ -66,7 +66,7 @@ class HomeNavbar extends StatelessWidget {
             Container(
               height: 54,
               width: 1,
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
             ),
             const SizedBox(width: 12),
             Text(

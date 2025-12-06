@@ -104,12 +104,10 @@ class _AccountScreenState extends State<AccountScreen> {
               color: Colors.red,
               onTap: () async {
                 await AuthService.instance.signOut();
-                if (mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/', // Assuming home is '/' or handle navigation appropriately
-                    (route) => false,
-                  );
-                }
+                if (!context.mounted) return;
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/', (route) => false);
               },
             ),
           ],

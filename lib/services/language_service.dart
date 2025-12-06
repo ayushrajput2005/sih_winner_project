@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translator/translator.dart';
@@ -71,7 +70,7 @@ class LanguageService extends ChangeNotifier {
       // Notify listeners to update UI
       notifyListeners();
     } catch (e) {
-      print('Translation error for "$text" to $targetLang: $e');
+      debugPrint('Translation error for "$text" to $targetLang: $e');
     } finally {
       _pendingTranslations.remove(cacheKey);
     }

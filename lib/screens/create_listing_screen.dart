@@ -167,6 +167,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     DropdownButtonFormField<String>(
+                      // ignore: deprecated_member_use
                       value: _selectedCategory,
                       decoration: const InputDecoration(
                         labelText: 'Category',

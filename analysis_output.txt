@@ -1,0 +1,42 @@
+Analyzing fasalmitra backend...                                 
+
+   info • Don't invoke 'print' in production code • lib/main.dart:40:5 • avoid_print
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/account_screen.dart:108:32 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/cart_screen.dart:160:43 • deprecated_member_use
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/create_listing_screen.dart:170:23 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/screens/my_orders_screen.dart:50:42 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/my_orders_screen.dart:60:23 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/my_orders_screen.dart:69:42 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/my_orders_screen.dart:78:23 • use_build_context_synchronously
+   info • Statements in an if should be enclosed in a block • lib/screens/phone_login.dart:254:27 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/phone_login.dart:283:27 • curly_braces_in_flow_control_structures
+warning • The value of the local variable 'lang' isn't used • lib/screens/price_prediction_screen.dart:36:11 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/price_prediction_screen.dart:285:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/price_prediction_screen.dart:312:51 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/screens/price_prediction_screen.dart:358:33 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/price_prediction_screen.dart:363:33 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/price_prediction_screen.dart:368:33 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/price_prediction_screen.dart:373:33 • curly_braces_in_flow_control_structures
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/price_prediction_screen.dart:411:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/register_screen.dart:240:57 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/screens/register_screen.dart:325:27 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/register_screen.dart:344:27 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/register_screen.dart:347:27 • curly_braces_in_flow_control_structures
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/register_screen.dart:355:23 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/screens/register_screen.dart:401:27 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/register_screen.dart:403:27 • curly_braces_in_flow_control_structures
+   info • The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/services/language_service.dart:1:8 • unnecessary_import
+   info • Don't invoke 'print' in production code • lib/services/language_service.dart:74:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/listing_service.dart:180:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/listing_service.dart:196:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/order_service.dart:60:7 • avoid_print
+   info • The import of 'package:flutter/services.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' • lib/widgets/custom_cursor_overlay.dart:3:8 • unnecessary_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/custom_cursor_overlay.dart:71:40 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/home/banner_carousel.dart:113:33 • deprecated_member_use
+   info • Don't invoke 'print' in production code • lib/widgets/home/banner_carousel.dart:129:17 • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/home/home_footer.dart:73:30 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/home/home_footer.dart:98:30 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/home/home_footer.dart:114:30 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/home/home_footer.dart:153:30 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/home/home_navbar.dart:69:35 • deprecated_member_use
+

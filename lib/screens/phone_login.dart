@@ -250,9 +250,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         suffixIcon: Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty)
+                        if (value == null || value.trim().isEmpty) {
                           return 'Email is required';
-                        if (!value.contains('@')) return 'Enter a valid email';
+                        }
+                        if (!value.contains('@')) {
+                          return 'Enter a valid email';
+                        }
                         return null;
                       },
                     ),
@@ -279,8 +282,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty) {
                           return 'Password is required';
+                        }
                         return null;
                       },
                     ),

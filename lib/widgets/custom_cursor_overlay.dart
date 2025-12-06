@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:fasalmitra/services/cursor_service.dart';
 
 class CustomCursorOverlay extends StatefulWidget {
@@ -68,7 +68,7 @@ class _CustomCursorOverlayState extends State<CustomCursorOverlay> {
                         color: Colors.transparent,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: color.withOpacity(opacity),
+                          color: color.withValues(alpha: opacity),
                           width: 2,
                         ),
                       ),

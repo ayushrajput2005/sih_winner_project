@@ -1,6 +1,7 @@
 import 'package:fasalmitra/services/api.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 class ListingData {
   const ListingData({
@@ -177,7 +178,7 @@ class ListingService {
 
       return listings;
     } catch (e) {
-      print('Error fetching marketplace listings: $e');
+      debugPrint('Error fetching marketplace listings: $e');
       return [];
     }
   }
@@ -193,7 +194,7 @@ class ListingService {
       }
       return [];
     } catch (e) {
-      print('Fetch error $path: $e');
+      debugPrint('Fetch error $path: $e');
       return [];
     }
   }

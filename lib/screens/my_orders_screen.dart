@@ -47,6 +47,7 @@ class MyOrdersScreen extends StatelessWidget {
                 onReceived: () async {
                   try {
                     await OrderService.instance.confirmReceipt(order['id']!);
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Order #${order['id']} Confirmed'),
@@ -54,8 +55,9 @@ class MyOrdersScreen extends StatelessWidget {
                     );
                     // Ideally refresh UI
                     (context as Element)
-                        .markNeedsBuild(); // Hacky force rebuild or use stateful
+                        .markNeedsBuild(); // Hacky but works for now in Stateless
                   } catch (e) {
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -66,6 +68,7 @@ class MyOrdersScreen extends StatelessWidget {
                   // Assuming Request Refund is the action here or we map it to refund
                   try {
                     await OrderService.instance.requestRefund(order['id']!);
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
@@ -74,6 +77,7 @@ class MyOrdersScreen extends StatelessWidget {
                       ),
                     );
                   } catch (e) {
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(
                       context,
                     ).showSnackBar(SnackBar(content: Text('Error: $e')));
