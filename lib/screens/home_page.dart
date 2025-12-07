@@ -14,6 +14,7 @@ import 'package:fasalmitra/widgets/home/secondary_navbar.dart';
 import 'package:fasalmitra/widgets/home/banner_carousel.dart';
 import 'package:fasalmitra/widgets/home/feature_card_grid.dart';
 import 'package:fasalmitra/widgets/home/home_footer.dart';
+import 'package:fasalmitra/widgets/home/home_drawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -35,6 +36,28 @@ class _HomePageState extends State<HomePage> {
             context,
           ).copyWith(textScaler: TextScaler.linear(fontSizeScale)),
           child: Scaffold(
+            drawer: HomeDrawer(
+              onLogin: () {
+                Navigator.pop(context); // Close drawer
+                Navigator.of(context).pushNamed(LoginScreen.routeName);
+              },
+              onRegister: () {
+                Navigator.pop(context);
+                Navigator.of(context).pushNamed(RegisterScreen.routeName);
+              },
+              onAboutUs: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('About Us coming soon')),
+                );
+              },
+              onCustomerCare: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Customer Care coming soon')),
+                );
+              },
+            ),
             body: Column(
               children: [
                 HomeNavbar(

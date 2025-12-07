@@ -326,158 +326,166 @@ class _DetailedCropCard extends StatelessWidget {
           const Divider(height: 24),
 
           // Main Content: Graph + Action
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left: Graph (Expanded)
-              Expanded(
-                flex: 3,
-                child: SizedBox(
-                  height: 150,
-                  child: LineChart(
-                    LineChartData(
-                      gridData: const FlGridData(
-                        show: true,
-                        drawVerticalLine: false,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isMobile = constraints.maxWidth < 500; // Mobile breakpoint
+              final graphWidget = SizedBox(
+                height: 150,
+                child: LineChart(
+                  LineChartData(
+                    gridData: const FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                    ),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
                       ),
-                      titlesData: FlTitlesData(
-                        show: true,
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (val, meta) {
-                              if (val == 0) {
-                                return Text(
-                                  lang.t('now'),
-                                  style: const TextStyle(fontSize: 10),
-                                );
-                              }
-                              if (val == 1) {
-                                return Text(
-                                  lang.t('1m'),
-                                  style: const TextStyle(fontSize: 10),
-                                );
-                              }
-                              if (val == 3) {
-                                return Text(
-                                  lang.t('3m'),
-                                  style: const TextStyle(fontSize: 10),
-                                );
-                              }
-                              if (val == 6) {
-                                return Text(
-                                  lang.t('6m'),
-                                  style: const TextStyle(fontSize: 10),
-                                );
-                              }
-                              return const SizedBox();
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 35,
-                            interval: (maxY - minY) / 4 > 0
-                                ? (maxY - minY) / 4
-                                : 1000,
-                            getTitlesWidget: (value, meta) {
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (val, meta) {
+                            if (val == 0) {
                               return Text(
-                                '${value ~/ 1000}k',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
+                                lang.t('now'),
+                                style: const TextStyle(fontSize: 10),
                               );
-                            },
-                          ),
+                            }
+                            if (val == 1) {
+                              return Text(
+                                lang.t('1m'),
+                                style: const TextStyle(fontSize: 10),
+                              );
+                            }
+                            if (val == 3) {
+                              return Text(
+                                lang.t('3m'),
+                                style: const TextStyle(fontSize: 10),
+                              );
+                            }
+                            if (val == 6) {
+                              return Text(
+                                lang.t('6m'),
+                                style: const TextStyle(fontSize: 10),
+                              );
+                            }
+                            return const SizedBox();
+                          },
                         ),
                       ),
-                      borderData: FlBorderData(show: false),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: spots,
-                          isCurved: true,
-                          color: isUrgent ? Colors.red : Colors.green,
-                          barWidth: 3,
-                          dotData: const FlDotData(show: true),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: (isUrgent ? Colors.red : Colors.green)
-                                .withValues(alpha: 0.1),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 35,
+                          interval: (maxY - minY) / 4 > 0
+                              ? (maxY - minY) / 4
+                              : 1000,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              '${value ~/ 1000}k',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: spots,
+                        isCurved: true,
+                        color: isUrgent ? Colors.red : Colors.green,
+                        barWidth: 3,
+                        dotData: const FlDotData(show: true),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          color: (isUrgent ? Colors.red : Colors.green)
+                              .withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ],
+                    minY: minY - yMargin,
+                    maxY: maxY + yMargin,
+                  ),
+                ),
+              );
+
+              final actionWidget = Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isUrgent ? Colors.red : Colors.green,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          lang
+                              .t(
+                                action.toString().toLowerCase() == 'sell_now'
+                                    ? 'sellNow'
+                                    : 'hold',
+                              )
+                              .toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '₹${currentPrice.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
                           ),
                         ),
                       ],
-                      minY: minY - yMargin,
-                      maxY: maxY + yMargin,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 16),
-
-              // Right: Action Box
-              Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isUrgent ? Colors.red : Colors.green,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            lang
-                                .t(
-                                  action.toString().toLowerCase() == 'sell_now'
-                                      ? 'sellNow'
-                                      : 'hold',
-                                )
-                                .toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize:
-                                  14, // Slightly smaller to fit translated text
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '₹${currentPrice.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                  const SizedBox(height: 8),
+                  if (reason.isNotEmpty)
+                    Text(
+                      reason,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    if (reason.isNotEmpty)
-                      Text(
-                        reason, // Reason typically comes from API, translation is hard without model
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 11,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
+                ],
+              );
+
+              if (isMobile) {
+                return Column(
+                  children: [
+                    graphWidget,
+                    const SizedBox(height: 16),
+                    actionWidget,
                   ],
-                ),
-              ),
-            ],
+                );
+              } else {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: graphWidget),
+                    const SizedBox(width: 16),
+                    Expanded(flex: 2, child: actionWidget),
+                  ],
+                );
+              }
+            },
           ),
 
           const SizedBox(height: 16),

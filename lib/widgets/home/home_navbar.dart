@@ -29,164 +29,232 @@ class HomeNavbar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SafeArea(
         bottom: false,
-        child: Row(
-          children: [
-            // Logo
-            // Logo
-            ColorFiltered(
-              colorFilter: const ColorFilter.matrix(<double>[
-                -1,
-                0,
-                0,
-                0,
-                255,
-                0,
-                -1,
-                0,
-                0,
-                255,
-                0,
-                0,
-                -1,
-                0,
-                255,
-                0,
-                0,
-                0,
-                1,
-                0,
-              ]),
-              child: Image.asset(
-                'assets/images/gov_of_india.png',
-                height: 70,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Container(
-              height: 54,
-              width: 1,
-              color: Colors.white.withValues(alpha: 0.3),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'FasalMitra',
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 800;
 
-            // Links
-            if (MediaQuery.of(context).size.width > 600) ...[
-              Hoverable(
-                child: TextButton(
-                  onPressed: onAboutUs,
-                  style: TextButton.styleFrom(foregroundColor: Colors.white),
-                  child: Text(lang.t('aboutUs')),
-                ),
-              ),
-              Hoverable(
-                child: TextButton(
-                  onPressed: onCustomerCare,
-                  style: TextButton.styleFrom(foregroundColor: Colors.white),
-                  child: Text(lang.t('customerCare')),
-                ),
-              ),
-            ],
-
-            // Font size controls
-            ValueListenableBuilder<double>(
-              valueListenable: fontSize.listenable,
-              builder: (context, scale, _) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      onPressed: fontSize.decrease,
-                      icon: const Icon(Icons.remove, color: Colors.white),
-                      tooltip: 'Decrease font size',
-                      constraints: const BoxConstraints(),
-                      padding: const EdgeInsets.all(8),
+            if (isMobile) {
+              // Mobile Navbar: Menu + Compact Logo
+              return Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  ),
+                  const Spacer(),
+                  // Compact Logo
+                  ColorFiltered(
+                    colorFilter: const ColorFilter.matrix(<double>[
+                      -1,
+                      0,
+                      0,
+                      0,
+                      255,
+                      0,
+                      -1,
+                      0,
+                      0,
+                      255,
+                      0,
+                      0,
+                      -1,
+                      0,
+                      255,
+                      0,
+                      0,
+                      0,
+                      1,
+                      0,
+                    ]),
+                    child: Image.asset(
+                      'assets/images/gov_of_india.png',
+                      height: 50, // Scaled down
+                      fit: BoxFit.contain,
                     ),
-                    Text(
-                      'A',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 40,
+                    width: 1,
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'FasalMitra',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    IconButton(
-                      onPressed: fontSize.increase,
-                      icon: const Icon(Icons.add, color: Colors.white),
-                      tooltip: 'Increase font size',
-                      constraints: const BoxConstraints(),
-                      padding: const EdgeInsets.all(8),
+                  ),
+                  const Spacer(),
+                  // Keep Cart icon visible on mobile for easy access or remove to strictly follow "scale down everything" and use drawer?
+                  // User said "remove login / register buttons from appbar", didn't explicitly say remove all icons.
+                  // But reducing clutter is good. Let's keep it clean or just cart.
+                  // Let's stick to Drawer for everything per user request "side bar option that will show only for phone ui".
+                ],
+              );
+            }
+
+            // Desktop Navbar (Existing logic)
+            return Row(
+              children: [
+                // Logo
+                ColorFiltered(
+                  colorFilter: const ColorFilter.matrix(<double>[
+                    -1,
+                    0,
+                    0,
+                    0,
+                    255,
+                    0,
+                    -1,
+                    0,
+                    0,
+                    255,
+                    0,
+                    0,
+                    -1,
+                    0,
+                    255,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                  ]),
+                  child: Image.asset(
+                    'assets/images/gov_of_india.png',
+                    height: 70,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  height: 54,
+                  width: 1,
+                  color: Colors.white.withValues(alpha: 0.3),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'FasalMitra',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+
+                // Links
+                Hoverable(
+                  child: TextButton(
+                    onPressed: onAboutUs,
+                    style: TextButton.styleFrom(foregroundColor: Colors.white),
+                    child: Text(lang.t('aboutUs')),
+                  ),
+                ),
+                Hoverable(
+                  child: TextButton(
+                    onPressed: onCustomerCare,
+                    style: TextButton.styleFrom(foregroundColor: Colors.white),
+                    child: Text(lang.t('customerCare')),
+                  ),
+                ),
+
+                // Font size controls
+                ValueListenableBuilder<double>(
+                  valueListenable: fontSize.listenable,
+                  builder: (context, scale, _) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: fontSize.decrease,
+                          icon: const Icon(Icons.remove, color: Colors.white),
+                          tooltip: 'Decrease font size',
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        Text(
+                          'A',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                        IconButton(
+                          onPressed: fontSize.increase,
+                          icon: const Icon(Icons.add, color: Colors.white),
+                          tooltip: 'Increase font size',
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(width: 8),
+
+                // Language selector
+                LanguageSelector(
+                  compact: true,
+                  iconColor: Colors.white,
+                  textColor: Colors.white,
+                ),
+
+                const SizedBox(width: 8),
+
+                // Login button
+                Hoverable(
+                  child: OutlinedButton(
+                    onPressed: onLogin,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white),
                     ),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(width: 8),
-
-            // Language selector
-            LanguageSelector(
-              compact: true,
-              iconColor: Colors.white,
-              textColor: Colors.white,
-            ),
-
-            const SizedBox(width: 8),
-
-            // Login button
-            Hoverable(
-              child: OutlinedButton(
-                onPressed: onLogin,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white),
+                    child: Text(lang.t('login')),
+                  ),
                 ),
-                child: Text(lang.t('login')),
-              ),
-            ),
 
-            const SizedBox(width: 8),
+                const SizedBox(width: 8),
 
-            // Register button (highlighted)
-            Hoverable(
-              child: FilledButton(
-                onPressed: onRegister,
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: theme.colorScheme.primary,
+                // Register button (highlighted)
+                Hoverable(
+                  child: FilledButton(
+                    onPressed: onRegister,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: theme.colorScheme.primary,
+                    ),
+                    child: Text(lang.t('register')),
+                  ),
                 ),
-                child: Text(lang.t('register')),
-              ),
-            ),
 
-            const SizedBox(width: 8),
+                const SizedBox(width: 8),
 
-            // Cart Icon
-            Hoverable(
-              child: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/cart');
-                },
-                icon: const Icon(Icons.shopping_cart, color: Colors.white),
-                tooltip: 'Cart',
-              ),
-            ),
+                // Cart Icon
+                Hoverable(
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/cart');
+                    },
+                    icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                    tooltip: 'Cart',
+                  ),
+                ),
 
-            // Profile Icon
-            Hoverable(
-              child: IconButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/account');
-                },
-                icon: const Icon(Icons.person, color: Colors.white),
-                tooltip: 'Account',
-              ),
-            ),
-          ],
+                // Profile Icon
+                Hoverable(
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/account');
+                    },
+                    icon: const Icon(Icons.person, color: Colors.white),
+                    tooltip: 'Account',
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );

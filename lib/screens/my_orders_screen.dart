@@ -33,58 +33,65 @@ class MyOrdersScreen extends StatelessWidget {
             return const Center(child: Text('No orders found'));
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return OrderCard(
-                orderId: order['id']!,
-                productName: order['product']!.toString(),
-                amount: order['amount']!.toString(),
-                status: order['status']!.toString(),
-                date: order['date']!.toString(),
-                onReceived: () async {
-                  try {
-                    await OrderService.instance.confirmReceipt(order['id']!);
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Order #${order['id']} Confirmed'),
-                      ),
-                    );
-                    // Ideally refresh UI
-                    (context as Element)
-                        .markNeedsBuild(); // Hacky but works for now in Stateless
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: orders.length,
+                itemBuilder: (context, index) {
+                  final order = orders[index];
+                  return OrderCard(
+                    orderId: order['id']!,
+                    productName: order['product']!.toString(),
+                    amount: order['amount']!.toString(),
+                    status: order['status']!.toString(),
+                    date: order['date']!.toString(),
+                    onReceived: () async {
+                      try {
+                        await OrderService.instance.confirmReceipt(
+                          order['id']!,
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Order #${order['id']} Confirmed'),
+                          ),
+                        );
+                        // Ideally refresh UI
+                        (context as Element)
+                            .markNeedsBuild(); // Hacky but works for now in Stateless
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      }
+                    },
+                    onNotReceived: () async {
+                      // Request refund logic? or just report?
+                      // Assuming Request Refund is the action here or we map it to refund
+                      try {
+                        await OrderService.instance.requestRefund(order['id']!);
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Refund requested for Order #${order['id']}',
+                            ),
+                          ),
+                        );
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      }
+                    },
+                  );
                 },
-                onNotReceived: () async {
-                  // Request refund logic? or just report?
-                  // Assuming Request Refund is the action here or we map it to refund
-                  try {
-                    await OrderService.instance.requestRefund(order['id']!);
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Refund requested for Order #${order['id']}',
-                        ),
-                      ),
-                    );
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
-                },
-              );
-            },
+              ),
+            ),
           );
         },
       ),

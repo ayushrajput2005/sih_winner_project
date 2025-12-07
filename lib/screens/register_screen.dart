@@ -142,7 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           LayoutBuilder(
             builder: (context, constraints) {
               final isWide = constraints.maxWidth > 900;
-              final card = _buildRegisterCard();
+              final card = _buildRegisterCard(isWide);
               if (!isWide) {
                 return SingleChildScrollView(
                   child: Column(
@@ -161,7 +161,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               );
             },
           ),
-          const Positioned(top: 16, right: 16, child: LanguageSelector()),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: const LanguageSelector(),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -263,14 +272,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildRegisterCard() {
+  Widget _buildRegisterCard(bool isWide) {
     final lang = LanguageService.instance;
 
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 520),
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: EdgeInsets.all(isWide ? 32 : 16),
           child: Card(
             elevation: 4,
             shape: RoundedRectangleBorder(

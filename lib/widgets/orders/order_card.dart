@@ -53,7 +53,9 @@ class OrderCard extends StatelessWidget {
             const SizedBox(height: 8),
             _buildInfoRow('Date', date),
             const SizedBox(height: 16),
-            Row(
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
               children: [
                 _buildButton(
                   context,
@@ -61,7 +63,6 @@ class OrderCard extends StatelessWidget {
                   color: Colors.green, // Adjust to match image green
                   onTap: onReceived,
                 ),
-                const SizedBox(width: 12),
                 _buildButton(
                   context,
                   label: 'Not Received',

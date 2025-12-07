@@ -31,20 +31,26 @@ class _BannerCarouselState extends State<BannerCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    // Calculate responsive height:
+    // - Mobile: Aspect ratio ~2:1 (width * 0.5)
+    // - Tablet/Web: Cap at 400.0
+    final double bannerHeight = (screenWidth * 0.5).clamp(200.0, 400.0);
+
     return FutureBuilder<List<BannerData>>(
       future: _bannersFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const SizedBox(
-            height: 400,
-            child: Center(child: CircularProgressIndicator()),
+          return SizedBox(
+            height: bannerHeight,
+            child: const Center(child: CircularProgressIndicator()),
           );
         }
 
         if (snapshot.hasError ||
             snapshot.data == null ||
             snapshot.data!.isEmpty) {
-          return _buildPlaceholderBanner();
+          return _buildPlaceholderBanner(bannerHeight);
         }
 
         final banners = snapshot.data!;
@@ -68,7 +74,7 @@ class _BannerCarouselState extends State<BannerCarousel> {
         });
 
         return SizedBox(
-          height: 400,
+          height: bannerHeight,
           child: PageView.builder(
             controller: _pageController,
             itemCount: banners.length,
@@ -81,9 +87,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
     );
   }
 
-  Widget _buildPlaceholderBanner() {
+  Widget _buildPlaceholderBanner(double height) {
     return Container(
-      height: 400,
+      height: height,
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade200,

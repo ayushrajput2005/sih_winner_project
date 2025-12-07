@@ -94,7 +94,11 @@ class FeatureCardGrid extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
-            childAspectRatio: 1.2,
+            // 1.0 gives a square, providing more height than 1.2 (which is width/height)
+            // If width is fixed by screen, 1.2 means height is smaller.
+            // 0.8 means height is larger than width.
+            // Let's use 1.0 or slightly less to ensuring enough height.
+            childAspectRatio: 1.0,
             children: cards,
           ),
         );
@@ -121,18 +125,28 @@ class _FeatureCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(16), // Reduced padding from 24
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 48, color: theme.colorScheme.primary),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+              // Scale down icon on mobile effectively
+              FittedBox(
+                child: Icon(icon, size: 48, color: theme.colorScheme.primary),
+              ),
+              const SizedBox(height: 12),
+              Flexible(
+                // valid inside column
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    // Smaller text style
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),

@@ -35,6 +35,10 @@ class HomeFooter extends StatelessWidget {
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > 800;
 
+          if (!isWide) {
+            return const SizedBox.shrink(); // Hide footer on mobile
+          }
+
           if (isWide) {
             return Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,16 +51,10 @@ class HomeFooter extends StatelessWidget {
               ],
             );
           } else {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildMenuSection(lang, textColor),
-                const SizedBox(height: 32),
-                _buildUsefulWebsitesSection(lang, textColor),
-                const SizedBox(height: 32),
-                _buildLogosSection(isWide: false),
-              ],
-            );
+            // This branch is unreachable now due to !isWide check above,
+            // but keeping structure for clarity if we want to revert to a mobile footer later.
+            // For now user requested removal.
+            return const SizedBox.shrink();
           }
         },
       ),
