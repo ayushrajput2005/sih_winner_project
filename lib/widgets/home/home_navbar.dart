@@ -5,6 +5,7 @@ import 'package:fasalmitra/services/font_size_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/hoverable.dart';
 import 'package:fasalmitra/widgets/profile_dialog.dart';
+import 'package:fasalmitra/screens/my_orders_screen.dart';
 
 class HomeNavbar extends StatelessWidget {
   const HomeNavbar({
@@ -257,6 +258,21 @@ class HomeNavbar extends StatelessWidget {
                     },
                     icon: const Icon(Icons.person, color: Colors.white),
                     tooltip: 'User Profile',
+                  ),
+                ),
+
+                // My Orders Icon
+                Hoverable(
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const MyOrdersScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.list_alt, color: Colors.white),
+                    tooltip: 'My Orders',
                   ),
                 ),
               ],

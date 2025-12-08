@@ -3,6 +3,32 @@ import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/cart_service.dart';
 import 'package:flutter/foundation.dart';
 
+class OrderData {
+  final String id;
+  final String productName;
+  final String amount;
+  final String status;
+  final DateTime? date;
+
+  OrderData({
+    required this.id,
+    required this.productName,
+    required this.amount,
+    required this.status,
+    this.date,
+  });
+
+  factory OrderData.fromJson(Map<String, dynamic> json) {
+    return OrderData(
+      id: json['id'].toString(),
+      productName: json['product_name'] ?? 'Unknown Product',
+      amount: json['amount']?.toString() ?? '0.00',
+      status: json['status'] ?? 'PENDING',
+      date: json['date'] != null ? DateTime.tryParse(json['date']) : null,
+    );
+  }
+}
+
 class OrderService {
   OrderService._();
 
@@ -15,9 +41,6 @@ class OrderService {
     }
 
     // API supports buying one product at a time via /buy/
-    // We will loop through items and buy them.
-    // Note: Transaction consistency? If one fails?
-    // For now, we attempt all.
     List<String> errors = [];
 
     for (var item in items) {
@@ -37,29 +60,29 @@ class OrderService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getMyOrders() async {
+  Future<List<OrderData>> getMyOrders() async {
     final token = AuthService.instance.token;
     if (token == null) return [];
 
     try {
       final response = await ApiService.instance.get('/orders/', token: token);
 
-      // ApiService logic: if it's a list, it might wrap in {data: List} or return list.
-      // Based on ApiService.dart: if body is list, returns {data: list} or list?
-      // "return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{'data': decoded};"
-      // So simple list becomes {'data': [...]}.
+      dynamic orderList;
 
-      if (response['data'] is List) {
-        final list = response['data'] as List;
-        return list.map((item) {
-          return {
-            'id': item['id'].toString(),
-            'product': item['product_name'] ?? 'Unknown',
-            'amount': '₹${item['amount']}',
-            'status': item['status'],
-            'date': item['date'],
-          };
-        }).toList();
+      // Handle various response structures
+      if (response['success'] != null && response['success']['body'] is List) {
+        orderList = response['success']['body'];
+      } else if (response['data'] is List) {
+        orderList = response['data'];
+      } else if (response is List) {
+        // Should not happen with ApiService wrapper unless it returned raw list
+        orderList = response;
+      }
+
+      if (orderList is List) {
+        return orderList
+            .map((item) => OrderData.fromJson(item as Map<String, dynamic>))
+            .toList();
       }
       return [];
     } catch (e) {
@@ -70,33 +93,48 @@ class OrderService {
 
   Future<void> confirmReceipt(String orderId) async {
     final token = AuthService.instance.token;
-    if (token == null) return;
+    if (token == null) throw Exception('User not logged in');
 
-    await ApiService.instance.post(
-      '/confirm/',
-      token: token,
-      body: {'order_id': int.tryParse(orderId) ?? 0},
-    );
+    try {
+      final response = await ApiService.instance.post(
+        '/confirm/',
+        token: token,
+        body: {'order_id': int.tryParse(orderId) ?? 0},
+      );
+
+      if (response['error'] != null) {
+        throw Exception(response['error']);
+      }
+    } catch (e) {
+      throw Exception('Failed to confirm receipt: $e');
+    }
   }
 
   Future<void> requestRefund(String orderId) async {
     final token = AuthService.instance.token;
-    if (token == null) return;
+    if (token == null) throw Exception('User not logged in');
 
-    await ApiService.instance.post(
-      '/refund/',
-      token: token,
-      body: {'order_id': int.tryParse(orderId) ?? 0},
-    );
+    try {
+      final response = await ApiService.instance.post(
+        '/refund/',
+        token: token,
+        body: {'order_id': int.tryParse(orderId) ?? 0},
+      );
+
+      if (response['error'] != null) {
+        throw Exception(response['error']);
+      }
+    } catch (e) {
+      throw Exception('Failed to request refund: $e');
+    }
   }
 
-  // Deprecated / Unused in new flow?
+  // Deprecated / Unused
   Future<List<Map<String, dynamic>>> getOrdersForFarmer(String farmerId) async {
     return [];
   }
 
   Future<void> updateOrderStatus(String orderId, String newStatus) async {
-    // mapped to confirm/refund? Use specific methods instead.
     if (newStatus == 'COMPLETED') {
       await confirmReceipt(orderId);
     } else if (newStatus == 'REFUNDED') {

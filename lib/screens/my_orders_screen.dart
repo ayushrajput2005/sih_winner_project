@@ -1,96 +1,98 @@
 import 'package:flutter/material.dart';
 import 'package:fasalmitra/services/order_service.dart';
-import 'package:fasalmitra/widgets/orders/order_card.dart';
+import 'package:fasalmitra/widgets/order_card.dart';
 
-class MyOrdersScreen extends StatelessWidget {
+class MyOrdersScreen extends StatefulWidget {
   const MyOrdersScreen({super.key});
 
   static const String routeName = '/my-orders';
 
   @override
+  State<MyOrdersScreen> createState() => _MyOrdersScreenState();
+}
+
+class _MyOrdersScreenState extends State<MyOrdersScreen> {
+  late Future<List<OrderData>> _ordersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshOrders();
+  }
+
+  void _refreshOrders() {
+    setState(() {
+      _ordersFuture = OrderService.instance.getMyOrders();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text('My Orders'),
         backgroundColor: Colors.white,
-        elevation: 0,
         foregroundColor: Colors.black,
+        elevation: 1,
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: OrderService.instance.getMyOrders(),
+      backgroundColor: Colors.grey.shade50,
+      body: FutureBuilder<List<OrderData>>(
+        future: _ordersFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
+
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text('Error: ${snapshot.error}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _refreshOrders,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
 
           final orders = snapshot.data ?? [];
 
           if (orders.isEmpty) {
-            return const Center(child: Text('No orders found'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.list_alt, size: 64, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No orders found',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                  ),
+                ],
+              ),
+            );
           }
 
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: orders.length,
-                itemBuilder: (context, index) {
-                  final order = orders[index];
-                  return OrderCard(
-                    orderId: order['id']!,
-                    productName: order['product']!.toString(),
-                    amount: order['amount']!.toString(),
-                    status: order['status']!.toString(),
-                    date: order['date']!.toString(),
-                    onReceived: () async {
-                      try {
-                        await OrderService.instance.confirmReceipt(
-                          order['id']!,
-                        );
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Order #${order['id']} Confirmed'),
-                          ),
-                        );
-                        // Ideally refresh UI
-                        (context as Element)
-                            .markNeedsBuild(); // Hacky but works for now in Stateless
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                      }
-                    },
-                    onNotReceived: () async {
-                      // Request refund logic? or just report?
-                      // Assuming Request Refund is the action here or we map it to refund
-                      try {
-                        await OrderService.instance.requestRefund(order['id']!);
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Refund requested for Order #${order['id']}',
-                            ),
-                          ),
-                        );
-                      } catch (e) {
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-                      }
-                    },
-                  );
-                },
-              ),
+          return RefreshIndicator(
+            onRefresh: () async {
+              _refreshOrders();
+              await _ordersFuture;
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                return OrderCard(
+                  order: orders[index],
+                  onStatusChanged: _refreshOrders,
+                );
+              },
             ),
           );
         },

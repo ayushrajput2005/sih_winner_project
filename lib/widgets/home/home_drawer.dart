@@ -3,6 +3,7 @@ import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/language_selector.dart';
 import 'package:fasalmitra/widgets/profile_dialog.dart';
+import 'package:fasalmitra/screens/my_orders_screen.dart';
 
 class HomeDrawer extends StatelessWidget {
   const HomeDrawer({
@@ -96,6 +97,16 @@ class HomeDrawer extends StatelessWidget {
                 context: context,
                 builder: (context) => const ProfileDialog(),
               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.list_alt),
+            title: const Text('My Orders'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const MyOrdersScreen()));
             },
           ),
           const Spacer(),
