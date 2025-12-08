@@ -9,6 +9,7 @@ class FeatureCardGrid extends StatelessWidget {
     this.onSellOilseed,
     this.onBuyOilseed,
     this.onByproductMarket,
+    this.onByproductPriceMarket,
     this.onMyOrders,
     this.onOrderTracking,
     this.onSearchOilSeed,
@@ -20,6 +21,7 @@ class FeatureCardGrid extends StatelessWidget {
   final VoidCallback? onSellOilseed;
   final VoidCallback? onBuyOilseed;
   final VoidCallback? onByproductMarket;
+  final VoidCallback? onByproductPriceMarket;
   final VoidCallback? onMyOrders;
   final VoidCallback? onOrderTracking;
   final VoidCallback? onSearchOilSeed;
@@ -56,6 +58,12 @@ class FeatureCardGrid extends StatelessWidget {
             icon: Icons
                 .compost, // Using compost icon for byproduct/recycling feel
             onTap: onByproductMarket,
+          ),
+          // Added Byproduct Price Market
+          _FeatureCard(
+            title: lang.t('byproductPriceMarket'),
+            icon: Icons.price_change,
+            onTap: onByproductPriceMarket,
           ),
           _FeatureCard(
             title: lang.t('myOrders'),

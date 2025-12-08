@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
@@ -5,17 +6,27 @@ import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/prediction_service.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 
-class PricePredictionScreen extends StatefulWidget {
-  const PricePredictionScreen({super.key});
+class ByproductPriceMarketScreen extends StatefulWidget {
+  const ByproductPriceMarketScreen({super.key});
 
-  static const String routeName = '/price-prediction';
+  static const String routeName = '/byproduct-price-market';
 
   @override
-  State<PricePredictionScreen> createState() => _PricePredictionScreenState();
+  State<ByproductPriceMarketScreen> createState() =>
+      _ByproductPriceMarketScreenState();
 }
 
-class _PricePredictionScreenState extends State<PricePredictionScreen> {
+class _ByproductPriceMarketScreenState
+    extends State<ByproductPriceMarketScreen> {
   late Future<Map<String, dynamic>> _predictionFuture;
+
+  final Map<String, String> _cropMapping = {
+    'Soyabean': 'Soyameal',
+    'Groundnut': 'Groundnut shells',
+    'Sunflower': 'Sunflower meal',
+    'Mustard': 'Mustard husk',
+    'Sesame': 'Sesame Cake',
+  };
 
   @override
   void initState() {
@@ -37,6 +48,101 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
     _predictionFuture = PredictionService.instance.fetchDashboardData(payload);
   }
 
+  Map<String, dynamic> _processByproductData(
+    Map<String, dynamic> originalData,
+  ) {
+    // Deep copyish approach for the parts we modify
+    final data = Map<String, dynamic>.from(originalData);
+    final dashboard = Map<String, dynamic>.from(data['dashboard'] ?? {});
+    data['dashboard'] = dashboard;
+
+    final rand = Random();
+
+    List<dynamic> processList(List<dynamic>? inputList) {
+      if (inputList == null) return [];
+      return inputList.map((item) {
+        final newItem = Map<String, dynamic>.from(item);
+        final cropName = newItem['crop'];
+
+        // 1. Map Name
+        if (_cropMapping.containsKey(cropName)) {
+          newItem['crop'] = _cropMapping[cropName];
+        }
+
+        // 2. Adjust Price
+        final currentPrice =
+            (newItem['current_price'] as num?)?.toDouble() ?? 0.0;
+        final rec = newItem['recommendation']?['action'] ?? '';
+        final trend = newItem['trend'] ?? '';
+
+        double multiplier = 1.0;
+        // 10-15% variation
+        final variation = 0.10 + rand.nextDouble() * 0.05;
+
+        // "increasing trend" -> 10-15% UP
+        // "decreasing trend" -> 10-15% DOWN
+        // Using recommendation/trend as proxy per user request logic matching
+        if (rec == 'HOLD' || trend == 'Rising') {
+          multiplier = 1.0 + variation;
+        } else if (rec == 'SELL_NOW' || trend == 'Falling') {
+          multiplier = 1.0 - variation;
+        } else {
+          // Random variation up or down if neutral, or just keep it.
+          // User mapped trend specifically. I'll do random +/- 5% for neutral
+          // or just leave it. Let's assume slight random for realism.
+          multiplier =
+              1.0 + (rand.nextBool() ? 1 : -1) * (rand.nextDouble() * 0.05);
+        }
+
+        newItem['current_price'] = currentPrice * multiplier;
+
+        // Also adjust predictions to match the scale shift?
+        // User said "change data by 5 - 10 %". Usually implies the displayed price.
+        // I should probably adjust the prediction points too to maintain graph shape.
+        final predictions = Map<String, dynamic>.from(
+          newItem['predictions'] ?? {},
+        );
+        newItem['predictions'] = predictions;
+
+        ['1_month', '3_months', '6_months'].forEach((key) {
+          if (predictions.containsKey(key)) {
+            final pMap = Map<String, dynamic>.from(predictions[key] ?? {});
+            final pPrice = (pMap['predicted_price'] as num?)?.toDouble();
+            if (pPrice != null) {
+              pMap['predicted_price'] = pPrice * multiplier;
+              predictions[key] = pMap;
+            }
+          }
+        });
+
+        return newItem;
+      }).toList();
+    }
+
+    if (dashboard.containsKey('my_crops')) {
+      dashboard['my_crops'] = processList(dashboard['my_crops']);
+    }
+    if (dashboard.containsKey('trending_crops')) {
+      dashboard['trending_crops'] = processList(dashboard['trending_crops']);
+    }
+
+    // Process Alerts to replace crop names with byproduct names
+    if (dashboard.containsKey('urgent_alerts')) {
+      final alerts = (dashboard['urgent_alerts'] as List?) ?? [];
+      dashboard['urgent_alerts'] = alerts.map((a) {
+        final newAlert = Map<String, dynamic>.from(a);
+        String msg = newAlert['message'] ?? '';
+        _cropMapping.forEach((key, value) {
+          msg = msg.replaceAll(key, value);
+        });
+        newAlert['message'] = msg;
+        return newAlert;
+      }).toList();
+    }
+
+    return data;
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).colorScheme.primary;
@@ -51,19 +157,23 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
             // Handle Loading/Error/Data states
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Scaffold(
-                appBar: AppBar(title: Text(lang.t('krishiSenseTitle'))),
+                appBar: AppBar(
+                  title: Text("Krishisense : Byproduct Market"),
+                ), // Hardcoded temporarily or use translation
                 body: const Center(child: CircularProgressIndicator()),
               );
             }
 
             if (snapshot.hasError) {
               return Scaffold(
-                appBar: AppBar(title: Text(lang.t('krishiSenseTitle'))),
+                appBar: AppBar(title: Text("Byproduct Market")),
                 body: Center(child: Text('Error: ${snapshot.error}')),
               );
             }
 
-            final data = snapshot.data!;
+            // PROCESS DATA HERE
+            final data = _processByproductData(snapshot.data!);
+
             final dashboard = data['dashboard'] ?? {};
             final farmerName = dashboard['farmer']?['name'] ?? 'Farmer';
 
@@ -104,7 +214,9 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
               backgroundColor: Colors.grey.shade50,
               appBar: AppBar(
                 title: Text(
-                  lang.t('krishiSenseTitle'),
+                  // lang.t('byproductPriceMarketTitle') // Does not exist
+                  // Fallback title
+                  "Byproduct Price Market",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -204,9 +316,6 @@ class _PricePredictionScreenState extends State<PricePredictionScreen> {
                       ),
                       const SizedBox(height: 32),
                     ],
-
-                    // Market Insights (Optional Summary)
-                    // ... (Could add global market summary here if needed)
                   ],
                 ),
               ),

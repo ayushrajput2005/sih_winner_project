@@ -9,6 +9,7 @@ import 'package:fasalmitra/screens/marketplace_screen.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
 import 'package:fasalmitra/screens/certificate_generation_screen.dart';
 import 'package:fasalmitra/screens/price_prediction_screen.dart';
+import 'package:fasalmitra/screens/byproduct_price_market_screen.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
@@ -104,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                           onBuyOilseed:
                               _handleMarketplace, // Now acts as Seed Market
                           onByproductMarket: _handleByproductMarket,
+                          onByproductPriceMarket: _handleByproductPriceMarket,
                           onMyOrders: _handleMyOrders,
 
                           onSearchOilSeed: _handleSearchOilSeed,
@@ -325,6 +327,19 @@ class _HomePageState extends State<HomePage> {
       MarketplaceScreen.routeName,
       arguments: {'category': 'Byproduct'},
     );
+  }
+
+  void _handleByproductPriceMarket() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to access Price Market',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
+    Navigator.of(context).pushNamed(ByproductPriceMarketScreen.routeName);
   }
 
   void _handleGenerateCertificate() {
