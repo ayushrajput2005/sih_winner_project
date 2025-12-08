@@ -125,199 +125,240 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(LanguageService.instance.t('marketplace')),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list_off),
-            onPressed: _clearFilters,
-            tooltip: 'Clear Filters',
+    return AnimatedBuilder(
+      animation: LanguageService.instance,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(LanguageService.instance.t('marketplace')),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.filter_list_off),
+                onPressed: _clearFilters,
+                tooltip: 'Clear Filters',
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Sorting and Filtering Controls
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Search Bar
-                TextField(
-                  controller: _searchController,
-                  focusNode: _searchFocusNode,
-                  decoration: InputDecoration(
-                    hintText: 'Search for seeds, crops...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = null);
+          body: Column(
+            children: [
+              // Sorting and Filtering Controls
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Search Bar
+                    TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      decoration: InputDecoration(
+                        hintText: LanguageService.instance.t(
+                          'searchPlaceholder',
+                        ),
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _searchQuery = null);
+                                  _loadListings();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                        ),
+                      ),
+                      onSubmitted: (value) {
+                        setState(() => _searchQuery = value.trim());
+                        _loadListings();
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    // Sort Dropdown
+                    Row(
+                      children: [
+                        const Icon(Icons.sort, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${LanguageService.instance.t('sortBy')}:',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: _sortBy,
+                            isExpanded: true,
+                            items: _sortOptions.map((option) {
+                              return DropdownMenuItem<String>(
+                                value: option['value'],
+                                child: Text(() {
+                                  switch (option['value']) {
+                                    case 'distance':
+                                      return LanguageService.instance.t(
+                                        'closest',
+                                      );
+                                    case 'price_low':
+                                      return LanguageService.instance.t(
+                                        'priceLow',
+                                      );
+                                    case 'price_high':
+                                      return LanguageService.instance.t(
+                                        'priceHigh',
+                                      );
+                                    case 'date_recent':
+                                      return LanguageService.instance.t(
+                                        'recentlyListed',
+                                      );
+                                    default:
+                                      return option['label']!;
+                                  }
+                                }()),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _sortBy = value;
+                                });
+                                _loadListings();
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Filter Chips
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        // Category Filter
+                        ..._categories.map((category) {
+                          final isSelected = _categoryFilter == category;
+                          return FilterChip(
+                            label: Text(
+                              LanguageService.instance.t(
+                                category.toLowerCase(),
+                              ),
+                            ),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                _categoryFilter = selected ? category : null;
+                              });
                               _loadListings();
                             },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  onSubmitted: (value) {
-                    setState(() => _searchQuery = value.trim());
-                    _loadListings();
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Sort Dropdown
-                Row(
-                  children: [
-                    const Icon(Icons.sort, size: 20),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Sort by:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: DropdownButton<String>(
-                        value: _sortBy,
-                        isExpanded: true,
-                        items: _sortOptions.map((option) {
-                          return DropdownMenuItem<String>(
-                            value: option['value'],
-                            child: Text(option['label']!),
                           );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              _sortBy = value;
-                            });
-                            _loadListings();
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // Filter Chips
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    // Category Filter
-                    ..._categories.map((category) {
-                      final isSelected = _categoryFilter == category;
-                      return FilterChip(
-                        label: Text(category),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            _categoryFilter = selected ? category : null;
-                          });
-                          _loadListings();
-                        },
-                      );
-                    }),
-                    // Date Range Filter
-                    ActionChip(
-                      avatar: const Icon(Icons.date_range, size: 18),
-                      label: Text(
-                        _dateFrom != null && _dateTo != null
-                            ? 'Date: ${_dateFrom!.month}/${_dateFrom!.day} - ${_dateTo!.month}/${_dateTo!.day}'
-                            : 'Filter by Date',
-                      ),
-                      onPressed: _showDateRangeFilter,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // Listings Grid
-          Expanded(
-            child: FutureBuilder<List<ListingData>>(
-              future: _listingsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: Colors.red,
-                        ),
-                        const SizedBox(height: 16),
-                        Text('Error: ${snapshot.error}'),
-                      ],
-                    ),
-                  );
-                }
-
-                final listings = snapshot.data ?? [];
-
-                if (listings.isEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.inventory_2_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'No listings found',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 280,
-                    childAspectRatio:
-                        0.55, // Adjusted back up since card is more compact
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: listings.length,
-                  itemBuilder: (context, index) {
-                    return ProductListingCard(
-                      listing: listings[index],
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Viewing ${listings[index].title}'),
+                        }),
+                        // Date Range Filter
+                        ActionChip(
+                          avatar: const Icon(Icons.date_range, size: 18),
+                          label: Text(
+                            _dateFrom != null && _dateTo != null
+                                ? '${LanguageService.instance.t('dateLabel')}: ${_dateFrom!.month}/${_dateFrom!.day} - ${_dateTo!.month}/${_dateTo!.day}'
+                                : LanguageService.instance.t('filterByDate'),
                           ),
+                          onPressed: _showDateRangeFilter,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Listings Grid
+              Expanded(
+                child: FutureBuilder<List<ListingData>>(
+                  future: _listingsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 48,
+                              color: Colors.red,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '${LanguageService.instance.t('error')}: ${snapshot.error}',
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final listings = snapshot.data ?? [];
+
+                    if (listings.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              LanguageService.instance.t('noListings'),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 280,
+                        childAspectRatio:
+                            0.55, // Adjusted back up since card is more compact
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: listings.length,
+                      itemBuilder: (context, index) {
+                        return ProductListingCard(
+                          listing: listings[index],
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '${LanguageService.instance.t('viewing')} ${listings[index].title}',
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

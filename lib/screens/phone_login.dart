@@ -87,43 +87,50 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 900;
-              final content = _buildLoginCard(isWide);
-              if (!isWide) {
-                return SingleChildScrollView(
-                  child: Column(
+    return AnimatedBuilder(
+      animation: LanguageService.instance,
+      builder: (context, child) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 900;
+                  final content = _buildLoginCard(isWide);
+                  if (!isWide) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildWelcomePanel(
+                            height: constraints.maxHeight * 0.25,
+                          ),
+                          content,
+                        ],
+                      ),
+                    );
+                  }
+                  return Row(
                     children: [
-                      _buildWelcomePanel(height: constraints.maxHeight * 0.25),
-                      content,
+                      Expanded(child: _buildWelcomePanel()),
+                      Expanded(child: SingleChildScrollView(child: content)),
                     ],
-                  ),
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: _buildWelcomePanel()),
-                  Expanded(child: SingleChildScrollView(child: content)),
-                ],
-              );
-            },
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: const LanguageSelector(),
+                  );
+                },
               ),
-            ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: const LanguageSelector(),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -255,7 +262,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: lang.t('emailLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -263,10 +270,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Email is required';
+                          return lang.t('emailRequired');
                         }
                         if (!value.contains('@')) {
-                          return 'Enter a valid email';
+                          return lang.t('emailInvalid');
                         }
                         return null;
                       },
@@ -278,7 +285,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       obscureText: !_passwordVisible,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: lang.t('passwordLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -295,7 +302,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Password is required';
+                          return lang.t('passwordRequired');
                         }
                         return null;
                       },
@@ -324,9 +331,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text(
-                                'Login',
-                                style: TextStyle(fontSize: 16),
+                            : Text(
+                                lang.t('login'),
+                                style: const TextStyle(fontSize: 16),
                               ),
                       ),
                     ),

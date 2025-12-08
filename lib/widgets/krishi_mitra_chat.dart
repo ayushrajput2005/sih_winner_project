@@ -171,7 +171,7 @@ class _KrishiMitraChatState extends State<KrishiMitraChat> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      hintText: 'Ask about farming...',
+                      hintText: LanguageService.instance.t('chatInputHint'),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                       ),

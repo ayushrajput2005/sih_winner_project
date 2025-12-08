@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fasalmitra/services/alert_service.dart';
+import 'package:fasalmitra/services/language_service.dart';
 
 import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
@@ -36,116 +37,138 @@ class _HomePageState extends State<HomePage> {
     return ValueListenableBuilder<double>(
       valueListenable: FontSizeService.instance.listenable,
       builder: (context, fontSizeScale, _) {
-        return MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.linear(fontSizeScale)),
-          child: Scaffold(
-            drawer: HomeDrawer(
-              onLogin: () {
-                Navigator.pop(context); // Close drawer
-                Navigator.of(context).pushNamed(LoginScreen.routeName);
-              },
-              onRegister: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamed(RegisterScreen.routeName);
-              },
-              onAboutUs: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('About Us coming soon')),
-                );
-              },
-              onCustomerCare: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Customer Care coming soon')),
-                );
-              },
-            ),
-            body: Column(
-              children: [
-                HomeNavbar(
+        return AnimatedBuilder(
+          animation: LanguageService.instance,
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(fontSizeScale)),
+              child: Scaffold(
+                drawer: HomeDrawer(
                   onLogin: () {
+                    Navigator.pop(context); // Close drawer
                     Navigator.of(context).pushNamed(LoginScreen.routeName);
                   },
                   onRegister: () {
+                    Navigator.pop(context);
                     Navigator.of(context).pushNamed(RegisterScreen.routeName);
                   },
                   onAboutUs: () {
-                    // TODO: Navigate to about us page
+                    Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('About Us coming soon')),
+                      SnackBar(
+                        content: Text(
+                          LanguageService.instance.t('aboutUsSoon'),
+                        ),
+                      ),
                     );
                   },
                   onCustomerCare: () {
-                    // TODO: Navigate to customer care page
+                    Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Customer Care coming soon'),
+                      SnackBar(
+                        content: Text(
+                          LanguageService.instance.t('customerCareSoon'),
+                        ),
                       ),
                     );
                   },
                 ),
-
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const BannerCarousel(),
-                        const SizedBox(height: 32),
-                        FeatureCardGrid(
-                          onSeedPriceMarket: _handleSeedPriceMarket,
-                          onSellOilseed: _handleListProduct,
-                          onBuyOilseed:
-                              _handleMarketplace, // Now acts as Seed Market
-                          onByproductMarket: _handleByproductMarket,
-                          onByproductPriceMarket: _handleByproductPriceMarket,
-                          onMyOrders: _handleMyOrders,
-
-                          onSearchOilSeed: _handleSearchOilSeed,
-                          onLearn: _handleLearn,
-                          onGenerateCertificate: _handleGenerateCertificate,
-                        ),
-                        const SizedBox(height: 64),
-                        HomeFooter(
-                          onSeedPriceMarket: _handleSeedPriceMarket,
-                          onSellOilseed: _handleListProduct,
-                          onBuyOilseed: _handleMarketplace,
-                          onMyOrders: _handleMyOrders,
-                          onOrderTracking: _handleOrderTracking,
-                          onSearchOilSeed: _handleSearchOilSeed,
-                          onLearn: _handleLearn,
-                        ),
-                      ],
+                body: Column(
+                  children: [
+                    HomeNavbar(
+                      onLogin: () {
+                        Navigator.of(context).pushNamed(LoginScreen.routeName);
+                      },
+                      onRegister: () {
+                        Navigator.of(
+                          context,
+                        ).pushNamed(RegisterScreen.routeName);
+                      },
+                      onAboutUs: () {
+                        // TODO: Navigate to about us page
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              LanguageService.instance.t('aboutUsSoon'),
+                            ),
+                          ),
+                        );
+                      },
+                      onCustomerCare: () {
+                        // TODO: Navigate to customer care page
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              LanguageService.instance.t('customerCareSoon'),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  ),
+
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const BannerCarousel(),
+                            const SizedBox(height: 32),
+                            FeatureCardGrid(
+                              onSeedPriceMarket: _handleSeedPriceMarket,
+                              onSellOilseed: _handleListProduct,
+                              onBuyOilseed:
+                                  _handleMarketplace, // Now acts as Seed Market
+                              onByproductMarket: _handleByproductMarket,
+                              onByproductPriceMarket:
+                                  _handleByproductPriceMarket,
+                              onMyOrders: _handleMyOrders,
+
+                              onSearchOilSeed: _handleSearchOilSeed,
+                              onLearn: _handleLearn,
+                              onGenerateCertificate: _handleGenerateCertificate,
+                            ),
+                            const SizedBox(height: 64),
+                            HomeFooter(
+                              onSeedPriceMarket: _handleSeedPriceMarket,
+                              onSellOilseed: _handleListProduct,
+                              onBuyOilseed: _handleMarketplace,
+                              onMyOrders: _handleMyOrders,
+                              onOrderTracking: _handleOrderTracking,
+                              onSearchOilSeed: _handleSearchOilSeed,
+                              onLearn: _handleLearn,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (context) => Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom,
-                    ),
-                    child: const SizedBox(
-                      height: 500, // Fixed height or dynamic
-                      child: KrishiMitraChat(),
-                    ),
-                  ),
-                );
-              },
-              tooltip: 'Ask KrishiMitra AI',
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(Icons.smart_toy, color: Colors.white),
-            ),
-          ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: const SizedBox(
+                          height: 500, // Fixed height or dynamic
+                          child: KrishiMitraChat(),
+                        ),
+                      ),
+                    );
+                  },
+                  tooltip: LanguageService.instance.t('askAi'),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: const Icon(Icons.smart_toy, color: Colors.white),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -156,7 +179,7 @@ class _HomePageState extends State<HomePage> {
     if (user == null) {
       AlertService.instance.show(
         context,
-        'Please login to list a product',
+        LanguageService.instance.t('pleaseLoginList'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -169,7 +192,7 @@ class _HomePageState extends State<HomePage> {
     if (!AuthService.instance.isLoggedIn) {
       AlertService.instance.show(
         context,
-        'Please login to access Marketplace',
+        LanguageService.instance.t('pleaseLoginMarket'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -182,7 +205,7 @@ class _HomePageState extends State<HomePage> {
     if (!AuthService.instance.isLoggedIn) {
       AlertService.instance.show(
         context,
-        'Please login to view prices',
+        LanguageService.instance.t('pleaseLoginPrice'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -195,7 +218,7 @@ class _HomePageState extends State<HomePage> {
     if (!AuthService.instance.isLoggedIn) {
       AlertService.instance.show(
         context,
-        'Please login first',
+        LanguageService.instance.t('pleaseLogin'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -234,7 +257,7 @@ class _HomePageState extends State<HomePage> {
     if (!AuthService.instance.isLoggedIn) {
       AlertService.instance.show(
         context,
-        'Please login to access Marketplace',
+        LanguageService.instance.t('pleaseLoginMarket'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -250,7 +273,7 @@ class _HomePageState extends State<HomePage> {
     if (!AuthService.instance.isLoggedIn) {
       AlertService.instance.show(
         context,
-        'Please login to access Price Market',
+        LanguageService.instance.t('pleaseLoginPrice'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
@@ -263,7 +286,7 @@ class _HomePageState extends State<HomePage> {
     if (!AuthService.instance.isLoggedIn) {
       AlertService.instance.show(
         context,
-        'Please login to generate certificate',
+        LanguageService.instance.t('pleaseLoginCert'),
         AlertType.warning,
       );
       Navigator.of(context).pushNamed(LoginScreen.routeName);

@@ -38,89 +38,101 @@ class _AccountScreenState extends State<AccountScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(LanguageService.instance.t('myAccount'))),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Profile Header
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  child: Text(
-                    user['name']?[0] ?? 'U',
-                    style: TextStyle(
-                      fontSize: 32,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  user['name'] ?? 'Unknown User',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Text(user['phone'] ?? ''),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+    return AnimatedBuilder(
+      animation: LanguageService.instance,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(title: Text(LanguageService.instance.t('myAccount'))),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
                   children: [
-                    const Icon(Icons.location_on, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
+                    // Profile Header
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.primaryContainer,
+                      child: Text(
+                        user['name']?[0] ?? 'U',
+                        style: TextStyle(
+                          fontSize: 32,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(
-                      user['state'] ?? 'India',
-                      style: const TextStyle(color: Colors.grey),
+                      user['name'] ?? 'Unknown User',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(user['phone'] ?? ''),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          size: 16,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          user['state'] ?? 'India',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Menu Options
+                    _buildMenuTile(
+                      icon: Icons.shopping_cart,
+                      title: LanguageService.instance.t('myCart'),
+                      onTap: () =>
+                          Navigator.of(context).pushNamed(CartScreen.routeName),
+                    ),
+                    _buildMenuTile(
+                      icon: Icons.list_alt,
+                      title: LanguageService.instance.t('myOrders'),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).pushNamed(MyOrdersScreen.routeName),
+                    ),
+                    _buildMenuTile(
+                      icon: Icons.storefront,
+                      title: LanguageService.instance.t('ordersReceived'),
+                      subtitle: LanguageService.instance.t('forYourListings'),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).pushNamed(OrdersReceivedScreen.routeName),
+                    ),
+                    const Divider(),
+                    _buildMenuTile(
+                      icon: Icons.logout,
+                      title: LanguageService.instance.t('logout'),
+                      color: Colors.red,
+                      onTap: () async {
+                        await AuthService.instance.signOut();
+                        if (!context.mounted) return;
+                        Navigator.of(
+                          context,
+                        ).pushNamedAndRemoveUntil('/', (route) => false);
+                      },
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
-
-                // Menu Options
-                _buildMenuTile(
-                  icon: Icons.shopping_cart,
-                  title: 'My Cart',
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(CartScreen.routeName),
-                ),
-                _buildMenuTile(
-                  icon: Icons.list_alt,
-                  title: 'My Orders',
-                  onTap: () =>
-                      Navigator.of(context).pushNamed(MyOrdersScreen.routeName),
-                ),
-                _buildMenuTile(
-                  icon: Icons.storefront,
-                  title: 'Orders Received',
-                  subtitle: 'For your listings',
-                  onTap: () => Navigator.of(
-                    context,
-                  ).pushNamed(OrdersReceivedScreen.routeName),
-                ),
-                const Divider(),
-                _buildMenuTile(
-                  icon: Icons.logout,
-                  title: 'Logout',
-                  color: Colors.red,
-                  onTap: () async {
-                    await AuthService.instance.signOut();
-                    if (!context.mounted) return;
-                    Navigator.of(
-                      context,
-                    ).pushNamedAndRemoveUntil('/', (route) => false);
-                  },
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

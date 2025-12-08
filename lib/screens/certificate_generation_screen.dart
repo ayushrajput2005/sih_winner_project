@@ -52,7 +52,7 @@ class _CertificateGenerationScreenState
     if (_selectedDate == null) {
       AlertService.instance.show(
         context,
-        'Please select a date',
+        LanguageService.instance.t('selectDate'),
         AlertType.warning,
       );
       return;
@@ -73,7 +73,7 @@ class _CertificateGenerationScreenState
 
       AlertService.instance.show(
         context,
-        'Certificate Generated Successfully!',
+        LanguageService.instance.t('certGenerated'),
         AlertType.success,
       );
 
@@ -90,7 +90,7 @@ class _CertificateGenerationScreenState
       debugPrint('Certificate Generation Error: $e');
       AlertService.instance.show(
         context,
-        'Something went wrong',
+        LanguageService.instance.t('somethingWrong'),
         AlertType.error,
       );
     } finally {
@@ -129,135 +129,151 @@ class _CertificateGenerationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(LanguageService.instance.t('generateCertificate')),
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Generate Quality Certificate',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Commodity Input
-                  TextFormField(
-                    controller: _commodityController,
-                    decoration: InputDecoration(
-                      labelText: 'Commodity',
-                      hintText: 'e.g. Wheat, Rice, Mustard',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter commodity name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Date Input
-                  TextFormField(
-                    controller: _dateController,
-                    decoration: InputDecoration(
-                      labelText: 'Processing Date',
-                      hintText: 'YYYY-MM-DD',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      suffixIcon: const Icon(Icons.calendar_today),
-                    ),
-                    readOnly: true,
-                    onTap: () => _selectDate(context),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Generate Button
-                  SizedBox(
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleGenerate,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(
-                          0xFF1B5E20,
-                        ), // Dark Green like screenshot
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+      appBar: AppBar(title: Text(LanguageService.instance.t('genCertTitle'))),
+      body: AnimatedBuilder(
+        animation: LanguageService.instance,
+        builder: (context, child) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        LanguageService.instance.t('genCertTitle'),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'GENERATE CERTIFICATE',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
-                  ),
+                      const SizedBox(height: 24),
 
-                  // Download Section
-                  if (_generatedCertificateUrl != null) ...[
-                    const SizedBox(height: 32),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        border: Border.all(color: Colors.green),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 48,
+                      // Commodity Input
+                      TextFormField(
+                        controller: _commodityController,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.t(
+                            'commodityLabel',
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'Certificate Ready!',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
+                          hintText: LanguageService.instance.t('commodityHint'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return LanguageService.instance.t('enterCommodity');
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Date Input
+                      TextFormField(
+                        controller: _dateController,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.t(
+                            'processingDate',
+                          ),
+                          hintText: 'YYYY-MM-DD',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          suffixIcon: const Icon(Icons.calendar_today),
+                        ),
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Generate Button
+                      SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _handleGenerate,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                              0xFF1B5E20,
+                            ), // Dark Green like screenshot
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          OutlinedButton.icon(
-                            onPressed: _downloadCertificate,
-                            icon: const Icon(Icons.download),
-                            label: const Text('Download Certificate'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.green.shade800,
-                              side: BorderSide(color: Colors.green.shade800),
-                            ),
-                          ),
-                        ],
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  LanguageService.instance.t('generateCertBtn'),
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
                       ),
-                    ),
-                  ],
-                ],
+
+                      // Download Section
+                      if (_generatedCertificateUrl != null) ...[
+                        const SizedBox(height: 32),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade50,
+                            border: Border.all(color: Colors.green),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                LanguageService.instance.t('certReady'),
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              OutlinedButton.icon(
+                                onPressed: _downloadCertificate,
+                                icon: const Icon(Icons.download),
+                                label: Text(
+                                  LanguageService.instance.t('downloadCert'),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.green.shade800,
+                                  side: BorderSide(
+                                    color: Colors.green.shade800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

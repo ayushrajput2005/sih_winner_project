@@ -257,282 +257,284 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(LanguageService.instance.t('listProduct'))),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 600),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        DropdownButtonFormField<String>(
-                          // ignore: deprecated_member_use
-                          value: _selectedCategory,
-                          decoration: const InputDecoration(
-                            labelText: 'Category',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _categories.map((String category) {
-                            return DropdownMenuItem<String>(
-                              value: category,
-                              child: Text(category),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedCategory = newValue;
-                              _nameController
-                                  .clear(); // Clear product name on category change
-                            });
-                          },
-                          validator: (value) =>
-                              value == null ? 'Please select a category' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Autocomplete<String>(
-                              optionsBuilder:
-                                  (TextEditingValue textEditingValue) {
-                                    if (textEditingValue.text == '') {
-                                      return const Iterable<String>.empty();
-                                    }
-                                    return _currentProductNames.where((
-                                      String option,
-                                    ) {
-                                      return option.toLowerCase().contains(
-                                        textEditingValue.text.toLowerCase(),
-                                      );
-                                    });
-                                  },
-                              onSelected: (String selection) {
-                                _nameController.text = selection;
+    return AnimatedBuilder(
+      animation: LanguageService.instance,
+      builder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(LanguageService.instance.t('listProduct')),
+          ),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Category Dropdown
+                            DropdownButtonFormField<String>(
+                              value: _selectedCategory,
+                              decoration: InputDecoration(
+                                labelText: LanguageService.instance.t('categoryLabel'),
+                                border: const OutlineInputBorder(),
+                              ),
+                              items: ['Seeds', 'Byproduct'].map((category) {
+                                return DropdownMenuItem(
+                                  value: category,
+                                  child: Text(LanguageService.instance.t(category.toLowerCase())), // 'seeds', 'byproduct' keys
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value != null) {
+                                  setState(() {
+                                    _selectedCategory = value;
+                                    // Clear the product name when category changes
+                                    _nameController.clear();
+                                  });
+                                }
                               },
-                              fieldViewBuilder:
-                                  (
-                                    BuildContext context,
-                                    TextEditingController
-                                    fieldTextEditingController,
-                                    FocusNode fieldFocusNode,
-                                    VoidCallback onFieldSubmitted,
-                                  ) {
-                                    // Sync controllers if needed or just use this one and update _nameController
-                                    // To keep it simple, we'll let this controller drive the UI and sync on saved/changed
-                                    return TextFormField(
-                                      controller: fieldTextEditingController,
-                                      focusNode: fieldFocusNode,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Product Name',
-                                        hintText: 'Type to search...',
-                                        border: const OutlineInputBorder(),
-                                        suffixIcon: const Icon(
-                                          Icons.arrow_drop_down,
-                                        ),
-                                      ),
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter product name';
-                                        }
-                                        if (!_currentProductNames.contains(
-                                          value,
-                                        )) {
-                                          return 'Please select a valid product from the list';
-                                        }
-                                        return null;
-                                      },
-                                      onChanged: (value) {
-                                        _nameController.text = value;
-                                      },
-                                    );
-                                  },
-                              optionsViewBuilder:
-                                  (
-                                    BuildContext context,
-                                    AutocompleteOnSelected<String> onSelected,
-                                    Iterable<String> options,
-                                  ) {
-                                    return Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Material(
-                                        elevation: 4.0,
-                                        child: SizedBox(
-                                          width: constraints.maxWidth,
-                                          child: ListView.builder(
-                                            padding: EdgeInsets.zero,
-                                            shrinkWrap: true,
-                                            itemCount: options.length,
-                                            itemBuilder:
-                                                (
-                                                  BuildContext context,
-                                                  int index,
-                                                ) {
-                                                  final String option = options
-                                                      .elementAt(index);
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      onSelected(option);
-                                                    },
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            16.0,
-                                                          ),
-                                                      child: Text(option),
-                                                    ),
-                                                  );
-                                                },
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _dateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Processing Date (mm/dd/yyyy)',
-                            border: OutlineInputBorder(),
-                            suffixIcon: Icon(Icons.calendar_today),
-                          ),
-                          readOnly: true,
-                          onTap: () => _selectDate(context),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please select a date';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _quantityController,
-                          decoration: const InputDecoration(
-                            labelText: 'Amount (kg)',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter quantity';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Please enter a valid number';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _priceController,
-                          decoration: const InputDecoration(
-                            labelText: 'Price per kg (INR)',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter price';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Please enter a valid number';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
+                              validator: (value) =>
+                                  value == null ? LanguageService.instance.t('categoryLabel') : null,
+                            ),
+                            const SizedBox(height: 16),
 
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Certificate (PDF/JPG)',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            OutlinedButton(
-                              onPressed: () => _pickFile(true),
-                              child: const Text('Choose File'),
+                            // Product Name (Autocomplete)
+                            LayoutBuilder(builder: (context, constraints) {
+                              return Autocomplete<String>(
+                                optionsBuilder: (TextEditingValue textEditingValue) {
+                                  if (textEditingValue.text.isEmpty) {
+                                    return const Iterable<String>.empty();
+                                  }
+                                  return _currentProductNames.where((String option) {
+                                    return option
+                                        .toLowerCase()
+                                        .contains(textEditingValue.text.toLowerCase());
+                                  });
+                                },
+                                onSelected: (String selection) {
+                                  _nameController.text = selection;
+                                },
+                                fieldViewBuilder:
+                                    (context, textEditingController, focusNode, onFieldSubmitted) {
+                                  // Sync: if external populated (e.g. selection), sync internal
+                                  if (_nameController.text.isNotEmpty && textEditingController.text.isEmpty) {
+                                     textEditingController.text = _nameController.text;
+                                  }
+                                  
+                                  return TextFormField(
+                                    controller: textEditingController,
+                                    focusNode: focusNode,
+                                    decoration: InputDecoration(
+                                      labelText: LanguageService.instance.t('productNameLabel'),
+                                      hintText: LanguageService.instance.t('productNameHint'),
+                                      border: const OutlineInputBorder(),
+                                      suffixIcon: const Icon(Icons.arrow_drop_down),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return LanguageService.instance.t('productNameLabel');
+                                      }
+                                      if (!_currentProductNames.contains(value)) {
+                                        return 'Please select a valid product';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+                                      _nameController.text = value; 
+                                    },
+                                  );
+                                },
+                                optionsViewBuilder: (context, onSelected, options) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Material(
+                                      elevation: 4.0,
+                                      child: SizedBox(
+                                        width: constraints.maxWidth,
+                                        child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          shrinkWrap: true,
+                                          itemCount: options.length,
+                                          itemBuilder: (BuildContext context, int index) {
+                                            final String option = options.elementAt(index);
+                                            return InkWell(
+                                              onTap: () {
+                                                onSelected(option);
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(16.0),
+                                                child: Text(option),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }),
+                            const SizedBox(height: 16),
+
+                            // Processing Date
+                            TextFormField(
+                              controller: _dateController,
+                              decoration: InputDecoration(
+                                labelText: LanguageService.instance.t('dateLabel'),
+                                border: const OutlineInputBorder(),
+                                suffixIcon: const Icon(Icons.calendar_today),
+                              ),
+                              readOnly: true,
+                              onTap: () => _selectDate(context),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return LanguageService.instance.t('dateLabel');
+                                }
+                                return null;
+                              },
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                _certificateName ?? 'No file chosen',
-                                overflow: TextOverflow.ellipsis,
+                            const SizedBox(height: 16),
+
+                            // Quantity
+                            TextFormField(
+                              controller: _quantityController,
+                              decoration: InputDecoration(
+                                labelText: LanguageService.instance.t('qtyLabel'),
+                                border: const OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return LanguageService.instance.t('qtyLabel');
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Invalid number';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Price
+                            TextFormField(
+                              controller: _priceController,
+                              decoration: InputDecoration(
+                                labelText: LanguageService.instance.t('priceLabel'),
+                                border: const OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return LanguageService.instance.t('priceLabel');
+                                }
+                                if (double.tryParse(value) == null) {
+                                  return 'Invalid number';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Certificate Picker
+                            Text(
+                              LanguageService.instance.t('certLabel'),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                OutlinedButton(
+                                  onPressed: () => _pickFile(true),
+                                  child: Text(LanguageService.instance.t('chooseFile')),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    _certificateName ?? LanguageService.instance.t('noFile'),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Image Picker
+                            Text(
+                              LanguageService.instance.t('imageLabel'),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                OutlinedButton(
+                                  onPressed: () => _pickFile(false),
+                                  child: Text(LanguageService.instance.t('chooseFile')),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    _imageName ?? LanguageService.instance.t('noFile'),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Location Dropdown
+                            DropdownButtonFormField<String>(
+                              value: _selectedLocation,
+                              decoration: InputDecoration(
+                                labelText: LanguageService.instance.t('locationLabel'),
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(Icons.location_on),
+                              ),
+                              items: _states.map((location) {
+                                return DropdownMenuItem(
+                                  value: location,
+                                  child: Text(location),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLocation = value;
+                                });
+                              },
+                              validator: (value) =>
+                                  value == null ? LanguageService.instance.t('locationLabel') : null,
+                            ),
+                            const SizedBox(height: 24),
+
+                            // Submit Button
+                            SizedBox(
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _submitListing,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF386641),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: _isLoading
+                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    : Text(
+                                        LanguageService.instance.t('submitListing'),
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Product Image',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            OutlinedButton(
-                              onPressed: () => _pickFile(false),
-                              child: const Text('Choose File'),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                _imageName ?? 'No file chosen',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        DropdownButtonFormField<String>(
-                          // ignore: deprecated_member_use
-                          value: _selectedLocation,
-                          decoration: const InputDecoration(
-                            labelText: 'State / Location',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.location_on),
-                          ),
-                          items: _states.map((String state) {
-                            return DropdownMenuItem<String>(
-                              value: state,
-                              child: Text(state),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedLocation = newValue;
-                            });
-                          },
-                          validator: (value) =>
-                              value == null ? 'Please select a location' : null,
-                        ),
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: _submitListing,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Create Listing'),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
+        );
+      },
     );
   }
 }

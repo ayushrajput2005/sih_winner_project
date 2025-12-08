@@ -141,43 +141,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final isWide = constraints.maxWidth > 900;
-              final card = _buildRegisterCard(isWide);
-              if (!isWide) {
-                return SingleChildScrollView(
-                  child: Column(
+    return AnimatedBuilder(
+      animation: LanguageService.instance,
+      builder: (context, child) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWide = constraints.maxWidth > 900;
+                  final card = _buildRegisterCard(isWide);
+                  if (!isWide) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildWelcomePanel(
+                            height: constraints.maxHeight * 0.25,
+                          ),
+                          card,
+                        ],
+                      ),
+                    );
+                  }
+                  return Row(
                     children: [
-                      _buildWelcomePanel(height: constraints.maxHeight * 0.25),
-                      card,
+                      Expanded(child: _buildWelcomePanel()),
+                      Expanded(child: SingleChildScrollView(child: card)),
                     ],
-                  ),
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: _buildWelcomePanel()),
-                  Expanded(child: SingleChildScrollView(child: card)),
-                ],
-              );
-            },
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: const LanguageSelector(),
+                  );
+                },
               ),
-            ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: const LanguageSelector(),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -311,14 +318,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: _usernameController,
                       decoration: InputDecoration(
-                        labelText: 'Username',
+                        labelText: lang.t('usernameLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
-                          ? 'Username is required'
+                          ? lang.t('usernameRequired')
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -328,7 +335,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        labelText: 'Email',
+                        labelText: lang.t('emailLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -336,10 +343,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Email is required';
+                          return lang.t('emailRequired');
                         }
                         if (!value.contains('@')) {
-                          return 'Enter a valid email';
+                          return lang.t('emailInvalid');
                         }
                         return null;
                       },
@@ -351,18 +358,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
-                        labelText: 'Mobile Number',
+                        labelText: lang.t('mobileLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Mobile number is required';
+                          return lang.t('mobileRequired');
                         }
                         // Simple validation, just length
                         if (value.length < 10) {
-                          return 'Enter a valid mobile number';
+                          return lang.t('mobileInvalid');
                         }
                         return null;
                       },
@@ -374,7 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // ignore: deprecated_member_use
                       value: _selectedState,
                       decoration: InputDecoration(
-                        labelText: 'State',
+                        labelText: lang.t('stateLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -391,7 +398,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                       validator: (value) => value == null || value.isEmpty
-                          ? 'State is required'
+                          ? lang.t('stateRequired')
                           : null,
                     ),
                     const SizedBox(height: 16),
@@ -401,7 +408,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _passwordController,
                       obscureText: !_passwordVisible,
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: lang.t('passwordLabel'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -418,10 +425,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Password is required';
+                          return lang.t('passwordRequired');
                         }
                         if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                          return lang.t('passwordLength');
                         }
                         return null;
                       },
@@ -450,9 +457,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text(
-                                'Register',
-                                style: TextStyle(fontSize: 16),
+                            : Text(
+                                lang.t('registerCta'),
+                                style: const TextStyle(fontSize: 16),
                               ),
                       ),
                     ),
