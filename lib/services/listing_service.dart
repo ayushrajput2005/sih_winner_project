@@ -26,7 +26,7 @@ class ListingData {
     this.quantityUnit,
     this.distance,
     this.location,
-    this.quality,
+    this.score,
   });
 
   factory ListingData.fromJson(Map<String, dynamic> json) {
@@ -78,7 +78,7 @@ class ListingData {
       quantityUnit: 'kg',
       distance: null, // API doesn't give distance yet
       location: json['location'],
-      quality: json['quality'],
+      score: parseDouble(json['score']),
     );
   }
 
@@ -102,7 +102,7 @@ class ListingData {
   final String? quantityUnit;
   final double? distance;
   final String? location;
-  final String? quality;
+  final double? score;
 }
 
 class ListingService {
@@ -228,7 +228,7 @@ class ListingService {
     required Uint8List imageBytes,
     required String imageName,
     required String location,
-    required String quality,
+    // quality removed
   }) async {
     final token = AuthService.instance.token;
     if (token == null) throw Exception('User not logged in');
@@ -252,7 +252,7 @@ class ListingService {
       'amount_kg': quantity.toString(),
       'market_price_per_kg_inr': price.toString(),
       'location': location,
-      'quality': quality.toLowerCase(),
+      // 'quality': quality removed
     });
 
     // Helper to add file from bytes

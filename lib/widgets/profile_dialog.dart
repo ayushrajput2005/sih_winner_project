@@ -96,9 +96,11 @@ class ProfileDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.1),
+                color: theme.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: theme.primaryColor.withOpacity(0.2)),
+                border: Border.all(
+                  color: theme.primaryColor.withValues(alpha: 0.2),
+                ),
               ),
               child: Column(
                 children: [

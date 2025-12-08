@@ -67,7 +67,10 @@ class ProductListingCard extends StatelessWidget {
                       '${listing.quantity?.toStringAsFixed(0) ?? 0} kg',
                     ),
                     _buildRow('Loc', listing.location ?? ''), // Shortened label
-                    _buildRow('Quality', listing.quality ?? 'N/A'),
+                    _buildRow(
+                      'Score',
+                      listing.score?.toStringAsFixed(2) ?? 'N/A',
+                    ),
                     if (listing.processingDate != null)
                       _buildRow(
                         'Date', // Shortened label

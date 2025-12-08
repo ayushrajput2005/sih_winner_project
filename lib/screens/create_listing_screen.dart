@@ -31,12 +31,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   String? _imageName;
 
   String? _selectedLocation;
-  String? _selectedQuality;
   bool _isLoading = false;
 
   final List<String> _categories = ['Seeds', 'Byproduct'];
-
-  final List<String> _qualities = ['Good', 'Mid', 'Poor'];
 
   final List<String> _states = [
     'Andhra Pradesh',
@@ -76,6 +73,55 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     'Lakshadweep',
     'Puducherry',
   ];
+
+  final List<String> _seedNames = [
+    'Groundnut',
+    'Mustard',
+    'Rapeseed',
+    'Soybean',
+    'Sunflower',
+    'Sesame',
+    'Safflower',
+    'Niger Seed',
+    'Castor Seed',
+    'Linseed (Flaxseed)',
+    'Cottonseed',
+    'Coconut (Copra)',
+    'Oil Palm',
+    'Mahua Seed',
+    'Sal Seed',
+    'Neem Seed',
+    'Karanj (Pongamia) Seed',
+    'Jatropha Seed',
+    'Rice Bran',
+    'Corn Germ',
+  ];
+
+  final List<String> _byproductNames = [
+    'Groundnut Cake',
+    'Mustard Cake',
+    'Rapeseed Meal',
+    'Soybean Meal (Soya Meal)',
+    'Sunflower Meal',
+    'Sesame Cake',
+    'Safflower Cake',
+    'Niger Cake',
+    'Castor Cake (De-oiled Cake)',
+    'Linseed Cake',
+    'Cottonseed Cake (Cottonseed Meal)',
+    'Coconut Cake (Copra Cake)',
+    'Palm Kernel Cake (PKC)',
+    'Mahua Cake',
+    'Sal Cake',
+    'Neem Cake',
+    'Karanj Cake',
+    'Jatropha Cake',
+    'De-oiled Rice Bran (DORB)',
+    'Corn Germ Meal',
+  ];
+
+  List<String> get _currentProductNames =>
+      _selectedCategory == 'Byproduct' ? _byproductNames : _seedNames;
 
   @override
   void dispose() {
@@ -170,14 +216,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         );
         return;
       }
-      if (_selectedQuality == null) {
-        AlertService.instance.show(
-          context,
-          'Please select product quality',
-          AlertType.warning,
-        );
-        return;
-      }
 
       setState(() {
         _isLoading = true;
@@ -195,7 +233,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           imageBytes: _imageBytes!,
           imageName: _imageName!,
           location: _selectedLocation!,
-          quality: _selectedQuality!,
         );
 
         if (!mounted) return;
@@ -250,23 +287,112 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                           onChanged: (newValue) {
                             setState(() {
                               _selectedCategory = newValue;
+                              _nameController
+                                  .clear(); // Clear product name on category change
                             });
                           },
                           validator: (value) =>
                               value == null ? 'Please select a category' : null,
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Product Name',
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter product name';
-                            }
-                            return null;
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Autocomplete<String>(
+                              optionsBuilder:
+                                  (TextEditingValue textEditingValue) {
+                                    if (textEditingValue.text == '') {
+                                      return const Iterable<String>.empty();
+                                    }
+                                    return _currentProductNames.where((
+                                      String option,
+                                    ) {
+                                      return option.toLowerCase().contains(
+                                        textEditingValue.text.toLowerCase(),
+                                      );
+                                    });
+                                  },
+                              onSelected: (String selection) {
+                                _nameController.text = selection;
+                              },
+                              fieldViewBuilder:
+                                  (
+                                    BuildContext context,
+                                    TextEditingController
+                                    fieldTextEditingController,
+                                    FocusNode fieldFocusNode,
+                                    VoidCallback onFieldSubmitted,
+                                  ) {
+                                    // Sync controllers if needed or just use this one and update _nameController
+                                    // To keep it simple, we'll let this controller drive the UI and sync on saved/changed
+                                    return TextFormField(
+                                      controller: fieldTextEditingController,
+                                      focusNode: fieldFocusNode,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Product Name',
+                                        hintText: 'Type to search...',
+                                        border: const OutlineInputBorder(),
+                                        suffixIcon: const Icon(
+                                          Icons.arrow_drop_down,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter product name';
+                                        }
+                                        if (!_currentProductNames.contains(
+                                          value,
+                                        )) {
+                                          return 'Please select a valid product from the list';
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (value) {
+                                        _nameController.text = value;
+                                      },
+                                    );
+                                  },
+                              optionsViewBuilder:
+                                  (
+                                    BuildContext context,
+                                    AutocompleteOnSelected<String> onSelected,
+                                    Iterable<String> options,
+                                  ) {
+                                    return Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Material(
+                                        elevation: 4.0,
+                                        child: SizedBox(
+                                          width: constraints.maxWidth,
+                                          child: ListView.builder(
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            itemCount: options.length,
+                                            itemBuilder:
+                                                (
+                                                  BuildContext context,
+                                                  int index,
+                                                ) {
+                                                  final String option = options
+                                                      .elementAt(index);
+                                                  return InkWell(
+                                                    onTap: () {
+                                                      onSelected(option);
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            16.0,
+                                                          ),
+                                                      child: Text(option),
+                                                    ),
+                                                  );
+                                                },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                            );
                           },
                         ),
                         const SizedBox(height: 16),
@@ -323,28 +449,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          // ignore: deprecated_member_use
-                          value: _selectedQuality,
-                          decoration: const InputDecoration(
-                            labelText: 'Quality',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.grade),
-                          ),
-                          items: _qualities.map((String q) {
-                            return DropdownMenuItem<String>(
-                              value: q,
-                              child: Text(q),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedQuality = newValue;
-                            });
-                          },
-                          validator: (value) =>
-                              value == null ? 'Please select quality' : null,
-                        ),
+
                         const SizedBox(height: 24),
                         const Text(
                           'Certificate (PDF/JPG)',

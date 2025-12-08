@@ -47,6 +47,7 @@ dependencies:
   http_parser: ^4.1.2
   file_picker: ^10.3.7
   google_generative_ai: ^0.4.3
+  syncfusion_flutter_maps: ^31.2.16
 
 dev_dependencies:
   flutter_test:
