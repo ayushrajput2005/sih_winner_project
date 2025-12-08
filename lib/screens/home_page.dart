@@ -105,8 +105,6 @@ class _HomePageState extends State<HomePage> {
                               _handleMarketplace, // Now acts as Seed Market
                           onByproductMarket: _handleByproductMarket,
                           onMyOrders: _handleMyOrders,
-                          onOrderTracking:
-                              _handleOrderTracking, // Reuse My Orders for tracking
 
                           onSearchOilSeed: _handleSearchOilSeed,
                           onRecentPost: _handleRecentPost,

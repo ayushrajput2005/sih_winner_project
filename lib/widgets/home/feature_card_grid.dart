@@ -40,7 +40,7 @@ class FeatureCardGrid extends StatelessWidget {
             onTap: onSeedPriceMarket,
           ),
           _FeatureCard(
-            title: lang.t('sellOilseed'),
+            title: lang.t('sell'),
             icon: Icons.sell,
             onTap: onSellOilseed,
           ),
@@ -63,11 +63,6 @@ class FeatureCardGrid extends StatelessWidget {
             onTap: onMyOrders,
           ),
           _FeatureCard(
-            title: lang.t('orderTracking'),
-            icon: Icons.local_shipping,
-            onTap: onOrderTracking,
-          ),
-          _FeatureCard(
             title: lang.t('searchOilSeed'),
             icon: Icons.search,
             onTap: onSearchOilSeed,
@@ -87,17 +82,20 @@ class FeatureCardGrid extends StatelessWidget {
         if (isWide) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: cards
-                  .map(
-                    (card) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: card,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: cards
+                    .map(
+                      (card) => Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: card,
+                        ),
                       ),
-                    ),
-                  )
-                  .toList(),
+                    )
+                    .toList(),
+              ),
             ),
           );
         }
