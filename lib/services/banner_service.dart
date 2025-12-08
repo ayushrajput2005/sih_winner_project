@@ -43,7 +43,7 @@ class BannerService {
         id: '3',
         title: 'New Arrivals',
         description: 'Check out new products',
-        imageUrl: 'assets/images/banners/banner3.jpg',
+        imageUrl: 'assets/images/banners/banner3.png',
         linkUrl: 'https://example.com/banner3',
       ),
       const BannerData(
@@ -52,6 +52,13 @@ class BannerService {
         description: 'Limited time offers',
         imageUrl: 'assets/images/banners/banner4.png',
         linkUrl: 'https://example.com/banner4',
+      ),
+      const BannerData(
+        id: '5',
+        title: 'Latest Updates',
+        description: 'Stay updated with latest news',
+        imageUrl: 'assets/images/banners/banner5.png',
+        linkUrl: 'https://example.com/banner5',
       ),
     ];
   }

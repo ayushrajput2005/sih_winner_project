@@ -82,9 +82,9 @@ class ProductListingCard extends StatelessWidget {
                           LanguageService.instance.t('loc'),
                           listing.location ?? '',
                         ),
-                        _buildRow(
+                        _buildRatingRow(
                           LanguageService.instance.t('score'),
-                          listing.score?.toStringAsFixed(2) ?? 'N/A',
+                          listing.score,
                         ),
                         if (listing.processingDate != null)
                           _buildRow(
@@ -225,6 +225,58 @@ class ProductListingCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildRatingRow(String label, double? score) {
+    if (score == null) return const SizedBox.shrink();
+
+    // Convert 0-100 score to 0-5 stars with 0.5 precision
+    double starValue = (score / 20 * 2).round() / 2;
+    // user requested 1-5 range mapping for 0-100, but standard behavior for 0 is 0 stars or handled by null check.
+    // If score is 0, starValue is 0. If score is 100, starValue is 5.
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            '$label: ',
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(5, (index) {
+              if (index < starValue.floor()) {
+                return const Icon(Icons.star, size: 16, color: Colors.amber);
+              } else if (index < starValue) {
+                // index == starValue.floor() and starValue has .5
+                return const Icon(
+                  Icons.star_half,
+                  size: 16,
+                  color: Colors.amber,
+                );
+              } else {
+                return const Icon(
+                  Icons.star_border,
+                  size: 16,
+                  color: Colors.grey,
+                );
+              }
+            }),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '(${starValue.toStringAsFixed(1)})',
+            style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        ],
+      ),
     );
   }
 

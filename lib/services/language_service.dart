@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translator/translator.dart';
@@ -7,6 +8,7 @@ class LanguageService extends ChangeNotifier {
 
   static final LanguageService instance = LanguageService._();
   static const _prefsKey = 'app_language_v1';
+  static const _cachePrefsKey = 'translation_cache_v1';
 
   String _currentLanguage = 'hi';
   late SharedPreferences _prefs;
@@ -22,6 +24,30 @@ class LanguageService extends ChangeNotifier {
     final saved = prefs.getString(_prefsKey);
     if (saved != null && _strings.containsKey(saved)) {
       _currentLanguage = saved;
+    }
+    _loadDynamicCache();
+  }
+
+  void _loadDynamicCache() {
+    final jsonString = _prefs.getString(_cachePrefsKey);
+    if (jsonString != null) {
+      try {
+        final decoded = json.decode(jsonString) as Map<String, dynamic>;
+        decoded.forEach((lang, translations) {
+          _dynamicCache[lang] = Map<String, String>.from(translations);
+        });
+      } catch (e) {
+        debugPrint('Error loading translation cache: $e');
+      }
+    }
+  }
+
+  Future<void> _saveDynamicCache() async {
+    try {
+      final jsonString = json.encode(_dynamicCache);
+      await _prefs.setString(_cachePrefsKey, jsonString);
+    } catch (e) {
+      debugPrint('Error saving translation cache: $e');
     }
   }
 
@@ -77,6 +103,7 @@ class LanguageService extends ChangeNotifier {
         _dynamicCache[targetLang] = {};
       }
       _dynamicCache[targetLang]![text] = translation.text;
+      _saveDynamicCache(); // Save after successful fetch
 
       // Notify listeners to update UI
       notifyListeners();
@@ -506,6 +533,8 @@ const Map<String, Map<String, String>> _strings = {
     'stateRequired': 'राज्य चुनें',
     'registerSuccess': 'पंजीकरण सफल!',
     // Cart/Orders/Profile
+    'myCart': 'मेरा कार्ट',
+    'cartEmpty': 'आपका कार्ट खाली है',
     'clearCart': 'कार्ट खाली करें',
     'orderSuccess': 'ऑर्डर सफलतापूर्वक दिया गया!',
     'orderFailed': 'ऑर्डर विफल',
@@ -715,6 +744,8 @@ const Map<String, Map<String, String>> _strings = {
     'stateRequired': 'राज्य निवडा',
     'registerSuccess': 'नोंदणी यशस्वी!',
     // Cart/Orders/Profile
+    'myCart': 'माझी कार्ट',
+    'cartEmpty': 'तुमची कार्ट रिकामी आहे',
     'clearCart': 'कार्ट रिकामी करा',
     'orderSuccess': 'ऑर्डर यशस्वीरित्या दिली!',
     'orderFailed': 'ऑर्डर अयशस्वी',
