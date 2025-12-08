@@ -4,6 +4,7 @@ import 'package:fasalmitra/services/alert_service.dart';
 import 'package:flutter/material.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:fasalmitra/services/certificate_service.dart';
 
 class CreateListingScreen extends StatefulWidget {
   const CreateListingScreen({super.key});
@@ -189,6 +190,53 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     }
   }
 
+  Future<void> _generateCertificate() async {
+    if (_nameController.text.isEmpty || _selectedDate == null) {
+      AlertService.instance.show(
+        context,
+        'Please select Product Name and Date first',
+        AlertType.warning,
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final filename = await CertificateService.instance.generateCertificate(
+        commodity: _nameController.text,
+        date: _selectedDate!.toIso8601String().split('T')[0],
+      );
+
+      final bytes = await CertificateService.instance
+          .downloadCertificateAsBytes(filename);
+
+      if (mounted) {
+        setState(() {
+          _certificateName = filename;
+          _certificateBytes = Uint8List.fromList(bytes);
+        });
+        AlertService.instance.show(
+          context,
+          LanguageService.instance.t('certGenerated'),
+          AlertType.success,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AlertService.instance.show(
+          context,
+          'Certificate Generation Failed: $e',
+          AlertType.error,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   Future<void> _submitListing() async {
     if (_formKey.currentState!.validate()) {
       if (_certificateBytes == null) {
@@ -280,13 +328,19 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             DropdownButtonFormField<String>(
                               value: _selectedCategory,
                               decoration: InputDecoration(
-                                labelText: LanguageService.instance.t('categoryLabel'),
+                                labelText: LanguageService.instance.t(
+                                  'categoryLabel',
+                                ),
                                 border: const OutlineInputBorder(),
                               ),
                               items: ['Seeds', 'Byproduct'].map((category) {
                                 return DropdownMenuItem(
                                   value: category,
-                                  child: Text(LanguageService.instance.t(category.toLowerCase())), // 'seeds', 'byproduct' keys
+                                  child: Text(
+                                    LanguageService.instance.t(
+                                      category.toLowerCase(),
+                                    ),
+                                  ), // 'seeds', 'byproduct' keys
                                 );
                               }).toList(),
                               onChanged: (value) {
@@ -298,94 +352,131 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                   });
                                 }
                               },
-                              validator: (value) =>
-                                  value == null ? LanguageService.instance.t('categoryLabel') : null,
+                              validator: (value) => value == null
+                                  ? LanguageService.instance.t('categoryLabel')
+                                  : null,
                             ),
                             const SizedBox(height: 16),
 
                             // Product Name (Autocomplete)
-                            LayoutBuilder(builder: (context, constraints) {
-                              return Autocomplete<String>(
-                                optionsBuilder: (TextEditingValue textEditingValue) {
-                                  if (textEditingValue.text.isEmpty) {
-                                    return const Iterable<String>.empty();
-                                  }
-                                  return _currentProductNames.where((String option) {
-                                    return option
-                                        .toLowerCase()
-                                        .contains(textEditingValue.text.toLowerCase());
-                                  });
-                                },
-                                onSelected: (String selection) {
-                                  _nameController.text = selection;
-                                },
-                                fieldViewBuilder:
-                                    (context, textEditingController, focusNode, onFieldSubmitted) {
-                                  // Sync: if external populated (e.g. selection), sync internal
-                                  if (_nameController.text.isNotEmpty && textEditingController.text.isEmpty) {
-                                     textEditingController.text = _nameController.text;
-                                  }
-                                  
-                                  return TextFormField(
-                                    controller: textEditingController,
-                                    focusNode: focusNode,
-                                    decoration: InputDecoration(
-                                      labelText: LanguageService.instance.t('productNameLabel'),
-                                      hintText: LanguageService.instance.t('productNameHint'),
-                                      border: const OutlineInputBorder(),
-                                      suffixIcon: const Icon(Icons.arrow_drop_down),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return LanguageService.instance.t('productNameLabel');
-                                      }
-                                      if (!_currentProductNames.contains(value)) {
-                                        return 'Please select a valid product';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (value) {
-                                      _nameController.text = value; 
-                                    },
-                                  );
-                                },
-                                optionsViewBuilder: (context, onSelected, options) {
-                                  return Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Material(
-                                      elevation: 4.0,
-                                      child: SizedBox(
-                                        width: constraints.maxWidth,
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          shrinkWrap: true,
-                                          itemCount: options.length,
-                                          itemBuilder: (BuildContext context, int index) {
-                                            final String option = options.elementAt(index);
-                                            return InkWell(
-                                              onTap: () {
-                                                onSelected(option);
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(16.0),
-                                                child: Text(option),
-                                              ),
-                                            );
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Autocomplete<String>(
+                                  optionsBuilder:
+                                      (TextEditingValue textEditingValue) {
+                                        if (textEditingValue.text.isEmpty) {
+                                          return const Iterable<String>.empty();
+                                        }
+                                        return _currentProductNames.where((
+                                          String option,
+                                        ) {
+                                          return option.toLowerCase().contains(
+                                            textEditingValue.text.toLowerCase(),
+                                          );
+                                        });
+                                      },
+                                  onSelected: (String selection) {
+                                    _nameController.text = selection;
+                                  },
+                                  fieldViewBuilder:
+                                      (
+                                        context,
+                                        textEditingController,
+                                        focusNode,
+                                        onFieldSubmitted,
+                                      ) {
+                                        // Sync: if external populated (e.g. selection), sync internal
+                                        if (_nameController.text.isNotEmpty &&
+                                            textEditingController
+                                                .text
+                                                .isEmpty) {
+                                          textEditingController.text =
+                                              _nameController.text;
+                                        }
+
+                                        return TextFormField(
+                                          controller: textEditingController,
+                                          focusNode: focusNode,
+                                          decoration: InputDecoration(
+                                            labelText: LanguageService.instance
+                                                .t('productNameLabel'),
+                                            hintText: LanguageService.instance
+                                                .t('productNameHint'),
+                                            border: const OutlineInputBorder(),
+                                            suffixIcon: const Icon(
+                                              Icons.arrow_drop_down,
+                                            ),
+                                          ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return LanguageService.instance.t(
+                                                'productNameLabel',
+                                              );
+                                            }
+                                            if (!_currentProductNames.contains(
+                                              value,
+                                            )) {
+                                              return 'Please select a valid product';
+                                            }
+                                            return null;
                                           },
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            }),
+                                          onChanged: (value) {
+                                            _nameController.text = value;
+                                          },
+                                        );
+                                      },
+                                  optionsViewBuilder:
+                                      (context, onSelected, options) {
+                                        return Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Material(
+                                            elevation: 4.0,
+                                            child: SizedBox(
+                                              width: constraints.maxWidth,
+                                              child: ListView.builder(
+                                                padding: EdgeInsets.zero,
+                                                shrinkWrap: true,
+                                                itemCount: options.length,
+                                                itemBuilder:
+                                                    (
+                                                      BuildContext context,
+                                                      int index,
+                                                    ) {
+                                                      final String option =
+                                                          options.elementAt(
+                                                            index,
+                                                          );
+                                                      return InkWell(
+                                                        onTap: () {
+                                                          onSelected(option);
+                                                        },
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets.all(
+                                                                16.0,
+                                                              ),
+                                                          child: Text(option),
+                                                        ),
+                                                      );
+                                                    },
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                );
+                              },
+                            ),
                             const SizedBox(height: 16),
 
                             // Processing Date
                             TextFormField(
                               controller: _dateController,
                               decoration: InputDecoration(
-                                labelText: LanguageService.instance.t('dateLabel'),
+                                labelText: LanguageService.instance.t(
+                                  'dateLabel',
+                                ),
                                 border: const OutlineInputBorder(),
                                 suffixIcon: const Icon(Icons.calendar_today),
                               ),
@@ -393,7 +484,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                               onTap: () => _selectDate(context),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return LanguageService.instance.t('dateLabel');
+                                  return LanguageService.instance.t(
+                                    'dateLabel',
+                                  );
                                 }
                                 return null;
                               },
@@ -404,7 +497,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             TextFormField(
                               controller: _quantityController,
                               decoration: InputDecoration(
-                                labelText: LanguageService.instance.t('qtyLabel'),
+                                labelText: LanguageService.instance.t(
+                                  'qtyLabel',
+                                ),
                                 border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
@@ -424,13 +519,17 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             TextFormField(
                               controller: _priceController,
                               decoration: InputDecoration(
-                                labelText: LanguageService.instance.t('priceLabel'),
+                                labelText: LanguageService.instance.t(
+                                  'priceLabel',
+                                ),
                                 border: const OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return LanguageService.instance.t('priceLabel');
+                                  return LanguageService.instance.t(
+                                    'priceLabel',
+                                  );
                                 }
                                 if (double.tryParse(value) == null) {
                                   return 'Invalid number';
@@ -443,22 +542,65 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             // Certificate Picker
                             Text(
                               LanguageService.instance.t('certLabel'),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                OutlinedButton(
-                                  onPressed: () => _pickFile(true),
-                                  child: Text(LanguageService.instance.t('chooseFile')),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    _certificateName ?? LanguageService.instance.t('noFile'),
-                                    overflow: TextOverflow.ellipsis,
+                                if (_certificateBytes == null)
+                                  ElevatedButton.icon(
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _generateCertificate,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange.shade600,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    icon: const Icon(
+                                      Icons.verified_user,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      LanguageService.instance.t(
+                                        'generateCertificate',
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.check_circle,
+                                          color: Colors.green,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            _certificateName!,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              _certificateBytes = null;
+                                              _certificateName = null;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                             const SizedBox(height: 16),
@@ -466,19 +608,24 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             // Image Picker
                             Text(
                               LanguageService.instance.t('imageLabel'),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
                                 OutlinedButton(
                                   onPressed: () => _pickFile(false),
-                                  child: Text(LanguageService.instance.t('chooseFile')),
+                                  child: Text(
+                                    LanguageService.instance.t('chooseFile'),
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(
-                                    _imageName ?? LanguageService.instance.t('noFile'),
+                                    _imageName ??
+                                        LanguageService.instance.t('noFile'),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -490,7 +637,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             DropdownButtonFormField<String>(
                               value: _selectedLocation,
                               decoration: InputDecoration(
-                                labelText: LanguageService.instance.t('locationLabel'),
+                                labelText: LanguageService.instance.t(
+                                  'locationLabel',
+                                ),
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.location_on),
                               ),
@@ -505,8 +654,9 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                   _selectedLocation = value;
                                 });
                               },
-                              validator: (value) =>
-                                  value == null ? LanguageService.instance.t('locationLabel') : null,
+                              validator: (value) => value == null
+                                  ? LanguageService.instance.t('locationLabel')
+                                  : null,
                             ),
                             const SizedBox(height: 24),
 
@@ -520,9 +670,13 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                   foregroundColor: Colors.white,
                                 ),
                                 child: _isLoading
-                                    ? const CircularProgressIndicator(color: Colors.white)
+                                    ? const CircularProgressIndicator(
+                                        color: Colors.white,
+                                      )
                                     : Text(
-                                        LanguageService.instance.t('submitListing'),
+                                        LanguageService.instance.t(
+                                          'submitListing',
+                                        ),
                                         style: const TextStyle(fontSize: 16),
                                       ),
                               ),

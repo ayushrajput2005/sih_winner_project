@@ -45,4 +45,23 @@ class CertificateService {
     // Assuming _baseUrl does not end with / as per usage in generateCertificate.
     return '$_baseUrl/download-certificate/$filename/';
   }
+
+  Future<List<int>> downloadCertificateAsBytes(String filename) async {
+    final token = await AuthService.instance.getToken();
+    if (token == null) {
+      throw Exception('Not authenticated');
+    }
+
+    final url = Uri.parse(getCertificateUrl(filename));
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to download certificate: ${response.statusCode}');
+    }
+  }
 }
