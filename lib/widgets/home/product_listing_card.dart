@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/listing_service.dart';
+import 'package:fasalmitra/widgets/home/purchase_dialog.dart';
 
 class ProductListingCard extends StatelessWidget {
   const ProductListingCard({super.key, required this.listing, this.onTap});
@@ -116,10 +118,19 @@ class ProductListingCard extends StatelessWidget {
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Processing Purchase...'),
-                                  ),
+                                if (!AuthService.instance.isLoggedIn) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please Login to Purchase'),
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                showDialog(
+                                  context: context,
+                                  builder: (_) =>
+                                      PurchaseDialog(listing: listing),
                                 );
                               },
                               child: Container(

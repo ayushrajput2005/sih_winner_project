@@ -43,10 +43,11 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   sed -i '' 's|serviceWorkerSettings: {|entrypointBaseUrl: "/static/", serviceWorkerSettings: {|g' "$FLUTTER_BOOTSTRAP_JS"
 else
   # Linux/GNU syntax
+  TIMESTAMP=$(date +%s)
   sed -i 's|href="icons/|href="/static/icons/|g' "$INDEX_HTML"
   sed -i 's|href="favicon.png"|href="/static/favicon.png"|g' "$INDEX_HTML"
   sed -i 's|href="manifest.json"|href="/static/manifest.json"|g' "$INDEX_HTML"
-  sed -i 's|src="flutter_bootstrap.js"|src="/static/flutter_bootstrap.js"|g' "$INDEX_HTML"
+  sed -i "s|src=\"flutter_bootstrap.js\"|src=\"/static/flutter_bootstrap.js?v=$TIMESTAMP\"|g" "$INDEX_HTML"
   sed -i 's|<base href="/">|<base href="/static/">|g' "$INDEX_HTML"
   # Patch flutter_bootstrap.js to look for main.dart.js in /static/
   sed -i 's|serviceWorkerSettings: {|entrypointBaseUrl: "/static/", serviceWorkerSettings: {|g' "$FLUTTER_BOOTSTRAP_JS"

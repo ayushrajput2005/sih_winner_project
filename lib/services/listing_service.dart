@@ -288,6 +288,28 @@ class ListingService {
     }
   }
 
+  Future<void> buyProduct(String productId) async {
+    final token = AuthService.instance.token;
+    if (token == null) throw Exception('User not logged in');
+
+    try {
+      final response = await ApiService.instance.post(
+        '/buy/',
+        body: {'product_id': int.parse(productId)},
+        token: token,
+      );
+
+      // If ApiService.post returns successfully, it means 200 OK (usually).
+      // We can double check response if needed, but standard `post` usually throws on non-200 if built that way.
+      // Based on AuthService, it returns a Map.
+      if (response['error'] != null) {
+        throw Exception(response['error']);
+      }
+    } catch (e) {
+      throw Exception('Purchase failed: $e');
+    }
+  }
+
   Future<void> updateListing(String id, Map<String, dynamic> data) async {
     // API Documentation does not specifically list an update endpoint.
     // Assuming unsupported or out of scope for this migration task.
