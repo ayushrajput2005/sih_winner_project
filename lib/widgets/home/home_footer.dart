@@ -11,7 +11,7 @@ class HomeFooter extends StatelessWidget {
     this.onMyOrders,
     this.onOrderTracking,
     this.onSearchOilSeed,
-    this.onRecentPost,
+    this.onLearn,
   });
 
   final VoidCallback? onSeedPriceMarket;
@@ -20,7 +20,7 @@ class HomeFooter extends StatelessWidget {
   final VoidCallback? onMyOrders;
   final VoidCallback? onOrderTracking;
   final VoidCallback? onSearchOilSeed;
-  final VoidCallback? onRecentPost;
+  final VoidCallback? onLearn;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class HomeFooter extends StatelessWidget {
         _buildMenuLink(lang.t('myOrders'), onMyOrders, textColor),
         _buildMenuLink(lang.t('orderTracking'), onOrderTracking, textColor),
         _buildMenuLink(lang.t('searchOilSeed'), onSearchOilSeed, textColor),
-        _buildMenuLink(lang.t('recentPost'), onRecentPost, textColor),
+        _buildMenuLink(lang.t('learn'), onLearn, textColor),
       ],
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fasalmitra/services/alert_service.dart';
 
@@ -12,6 +11,7 @@ import 'package:fasalmitra/screens/price_prediction_screen.dart';
 import 'package:fasalmitra/screens/byproduct_price_market_screen.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
+import 'package:fasalmitra/screens/learn_screen.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
 import 'package:fasalmitra/widgets/home/home_navbar.dart';
 
@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
                           onMyOrders: _handleMyOrders,
 
                           onSearchOilSeed: _handleSearchOilSeed,
-                          onRecentPost: _handleRecentPost,
+                          onLearn: _handleLearn,
                           onGenerateCertificate: _handleGenerateCertificate,
                         ),
                         const SizedBox(height: 64),
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
                           onMyOrders: _handleMyOrders,
                           onOrderTracking: _handleOrderTracking,
                           onSearchOilSeed: _handleSearchOilSeed,
-                          onRecentPost: _handleRecentPost,
+                          onLearn: _handleLearn,
                         ),
                       ],
                     ),
@@ -207,18 +207,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _handleRecentPost() async {
-    const url = 'https://fasalmitra.com/blog';
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Could not launch blog')));
-      }
-    }
+  Future<void> _handleLearn() async {
+    Navigator.of(context).pushNamed(LearnScreen.routeName);
   }
 
   void _handleMyOrders() {

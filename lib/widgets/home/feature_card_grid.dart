@@ -13,7 +13,7 @@ class FeatureCardGrid extends StatelessWidget {
     this.onMyOrders,
     this.onOrderTracking,
     this.onSearchOilSeed,
-    this.onRecentPost,
+    this.onLearn,
     this.onGenerateCertificate,
   });
 
@@ -25,7 +25,7 @@ class FeatureCardGrid extends StatelessWidget {
   final VoidCallback? onMyOrders;
   final VoidCallback? onOrderTracking;
   final VoidCallback? onSearchOilSeed;
-  final VoidCallback? onRecentPost;
+  final VoidCallback? onLearn;
   final VoidCallback? onGenerateCertificate;
 
   @override
@@ -76,9 +76,9 @@ class FeatureCardGrid extends StatelessWidget {
             onTap: onSearchOilSeed,
           ),
           _FeatureCard(
-            title: lang.t('recentPost'),
-            icon: Icons.article,
-            onTap: onRecentPost,
+            title: lang.t('learn'),
+            icon: Icons.school,
+            onTap: onLearn,
           ),
           _FeatureCard(
             title: lang.t('generateCertificate'),
