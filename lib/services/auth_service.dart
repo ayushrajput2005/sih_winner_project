@@ -62,6 +62,10 @@ class AuthService {
   CaptchaData? get currentCaptcha => _captcha;
   String? get token => _authToken;
 
+  Future<String?> getToken() async {
+    return _authToken;
+  }
+
   Future<MockUserCredential> signUpWithEmailPassword({
     required String email,
     required String password,

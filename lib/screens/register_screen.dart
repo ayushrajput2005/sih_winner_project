@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/services/auth_service.dart';
+import 'package:fasalmitra/services/alert_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/tip_service.dart';
 import 'package:fasalmitra/widgets/language_selector.dart';
@@ -114,8 +115,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (user == null) throw AuthException('Registration failed');
 
       if (!mounted) return;
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Registration successful!')),
+      AlertService.instance.show(
+        context,
+        'Registration successful!',
+        AlertType.success,
       );
 
       // Navigate to Home
@@ -126,7 +129,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (err is AuthException) {
         message = err.message;
       }
-      messenger.showSnackBar(SnackBar(content: Text('Error: $message')));
+      if (mounted) {
+        AlertService.instance.show(context, 'Error: $message', AlertType.error);
+      }
     } finally {
       if (mounted) {
         setState(() => _submitting = false);

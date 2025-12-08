@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:fasalmitra/services/alert_service.dart';
+
 import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
 import 'package:fasalmitra/screens/marketplace_screen.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
+import 'package:fasalmitra/screens/certificate_generation_screen.dart';
 import 'package:fasalmitra/screens/price_prediction_screen.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
@@ -98,11 +101,16 @@ class _HomePageState extends State<HomePage> {
                         FeatureCardGrid(
                           onSeedPriceMarket: _handleSeedPriceMarket,
                           onSellOilseed: _handleListProduct,
-                          onBuyOilseed: _handleMarketplace,
+                          onBuyOilseed:
+                              _handleMarketplace, // Now acts as Seed Market
+                          onByproductMarket: _handleByproductMarket,
                           onMyOrders: _handleMyOrders,
-                          onOrderTracking: _handleOrderTracking,
+                          onOrderTracking:
+                              _handleOrderTracking, // Reuse My Orders for tracking
+
                           onSearchOilSeed: _handleSearchOilSeed,
                           onRecentPost: _handleRecentPost,
+                          onGenerateCertificate: _handleGenerateCertificate,
                         ),
                         const SizedBox(height: 64),
                         HomeFooter(
@@ -139,6 +147,11 @@ class _HomePageState extends State<HomePage> {
   void _handleListProduct() {
     final user = AuthService.instance.cachedUser;
     if (user == null) {
+      AlertService.instance.show(
+        context,
+        'Please login to list a product',
+        AlertType.warning,
+      );
       Navigator.of(context).pushNamed(LoginScreen.routeName);
     } else {
       Navigator.of(context).pushNamed(CreateListingScreen.routeName);
@@ -146,10 +159,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleMarketplace() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to access Marketplace',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
     Navigator.of(context).pushNamed(MarketplaceScreen.routeName);
   }
 
   void _handleRecentListings() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to view listings',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
     Navigator.of(context).pushNamed(
       MarketplaceScreen.routeName,
       arguments: {'sort': 'date_recent'},
@@ -157,6 +188,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _handleSearchByCategory() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to search',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -167,9 +207,7 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildCategoryTile('Seeds'),
-                _buildCategoryTile('Grains'),
-                _buildCategoryTile('Vegetables'),
-                _buildCategoryTile('Fruits'),
+                _buildCategoryTile('Byproduct'),
               ],
             ),
           ),
@@ -206,22 +244,36 @@ class _HomePageState extends State<HomePage> {
     switch (category) {
       case 'Seeds':
         return Icons.eco;
-      case 'Grains':
-        return Icons.grain;
-      case 'Vegetables':
-        return Icons.local_florist;
-      case 'Fruits':
-        return Icons.apple;
+      case 'Byproduct':
+        return Icons.category; // Or Icons.recycling or specific icon if desired
       default:
         return Icons.category;
     }
   }
 
   void _handleSeedPriceMarket() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to view prices',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
     Navigator.of(context).pushNamed(PricePredictionScreen.routeName);
   }
 
   void _handleSearchOilSeed() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login first',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
     Navigator.of(context).pushNamed(
       MarketplaceScreen.routeName,
       arguments: {'focusSearch': true, 'category': 'Seeds'},
@@ -259,5 +311,34 @@ class _HomePageState extends State<HomePage> {
       // Navigate to My Orders layout which shows tracking status
       Navigator.of(context).pushNamed(MyOrdersScreen.routeName);
     }
+  }
+
+  void _handleByproductMarket() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to access Marketplace',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
+    Navigator.of(context).pushNamed(
+      MarketplaceScreen.routeName,
+      arguments: {'category': 'Byproduct'},
+    );
+  }
+
+  void _handleGenerateCertificate() {
+    if (!AuthService.instance.isLoggedIn) {
+      AlertService.instance.show(
+        context,
+        'Please login to generate certificate',
+        AlertType.warning,
+      );
+      Navigator.of(context).pushNamed(LoginScreen.routeName);
+      return;
+    }
+    Navigator.of(context).pushNamed(CertificateGenerationScreen.routeName);
   }
 }

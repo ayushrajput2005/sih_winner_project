@@ -89,26 +89,19 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
             Container(
               height: 150,
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: Colors.white,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
                 ),
                 border: Border(
                   bottom: BorderSide(color: Colors.black, width: 2),
                 ),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/payments.png'),
+                  fit: BoxFit.contain,
+                ),
               ),
               alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.payment, size: 48, color: Colors.grey.shade400),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Payment Methods',
-                    style: TextStyle(color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
             ),
 
             // Bottom Section: Wallet Balance & Actions

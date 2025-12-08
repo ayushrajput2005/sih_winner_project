@@ -12,6 +12,7 @@ import 'package:fasalmitra/screens/cart_screen.dart';
 import 'package:fasalmitra/screens/account_screen.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
 import 'package:fasalmitra/screens/orders_received_screen.dart';
+import 'package:fasalmitra/screens/certificate_generation_screen.dart';
 import 'package:fasalmitra/screens/price_prediction_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
@@ -87,6 +88,8 @@ class FasalMitraApp extends StatelessWidget {
                 const OrdersReceivedScreen(),
             PricePredictionScreen.routeName: (context) =>
                 const PricePredictionScreen(),
+            CertificateGenerationScreen.routeName: (context) =>
+                const CertificateGenerationScreen(),
           },
         );
       },

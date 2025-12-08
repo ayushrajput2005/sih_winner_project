@@ -21,7 +21,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
-  final List<String> _categories = ['Seeds', 'Grains', 'Vegetables', 'Fruits'];
+  final List<String> _categories = ['Seeds', 'Byproduct'];
   final List<Map<String, String>> _sortOptions = [
     {'value': 'distance', 'label': 'Distance: Closest'},
     {'value': 'price_low', 'label': 'Price: Low to High'},

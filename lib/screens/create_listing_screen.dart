@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:fasalmitra/services/listing_service.dart';
+import 'package:fasalmitra/services/alert_service.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -32,15 +33,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   String? _selectedQuality;
   bool _isLoading = false;
 
-  final List<String> _categories = [
-    'Seeds',
-    'Fertilizers',
-    'Pesticides',
-    'Machinery',
-    'Vegetables',
-    'Fruits',
-    'Grains',
-  ];
+  final List<String> _categories = ['Seeds', 'Byproduct'];
 
   final List<String> _qualities = ['Good', 'Mid', 'Poor'];
 
@@ -140,9 +133,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     } catch (e) {
       debugPrint('Error picking file: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
+        AlertService.instance.show(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to pick file: $e')));
+          'Failed to pick file: $e',
+          AlertType.error,
+        );
       }
     }
   }
@@ -150,27 +145,35 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   Future<void> _submitListing() async {
     if (_formKey.currentState!.validate()) {
       if (_certificateBytes == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please upload a certificate')),
+        AlertService.instance.show(
+          context,
+          'Please upload a certificate',
+          AlertType.warning,
         );
         return;
       }
       if (_imageBytes == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please upload a product image')),
+        AlertService.instance.show(
+          context,
+          'Please upload a product image',
+          AlertType.warning,
         );
         return;
       }
-      // Ensure dropdowns are selected (though validate() on DropdownFormField should handle this if set up correctly, explicit check is safe)
+      // Ensure dropdowns are selected
       if (_selectedLocation == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a location')),
+        AlertService.instance.show(
+          context,
+          'Please select a location',
+          AlertType.warning,
         );
         return;
       }
       if (_selectedQuality == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select product quality')),
+        AlertService.instance.show(
+          context,
+          'Please select product quality',
+          AlertType.warning,
         );
         return;
       }
@@ -195,15 +198,15 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         );
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Listing created successfully!')),
+        AlertService.instance.show(
+          context,
+          'Listing created successfully!',
+          AlertType.success,
         );
         Navigator.pop(context);
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        AlertService.instance.show(context, 'Error: $e', AlertType.error);
       } finally {
         if (mounted) {
           setState(() {

@@ -8,19 +8,23 @@ class FeatureCardGrid extends StatelessWidget {
     this.onSeedPriceMarket,
     this.onSellOilseed,
     this.onBuyOilseed,
+    this.onByproductMarket,
     this.onMyOrders,
     this.onOrderTracking,
     this.onSearchOilSeed,
     this.onRecentPost,
+    this.onGenerateCertificate,
   });
 
   final VoidCallback? onSeedPriceMarket;
   final VoidCallback? onSellOilseed;
   final VoidCallback? onBuyOilseed;
+  final VoidCallback? onByproductMarket;
   final VoidCallback? onMyOrders;
   final VoidCallback? onOrderTracking;
   final VoidCallback? onSearchOilSeed;
   final VoidCallback? onRecentPost;
+  final VoidCallback? onGenerateCertificate;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +44,18 @@ class FeatureCardGrid extends StatelessWidget {
             icon: Icons.sell,
             onTap: onSellOilseed,
           ),
+          // Renamed "Buy Oilseed" to "Seed Market"
           _FeatureCard(
-            title: lang.t('buyOilseed'),
+            title: lang.t('seedMarket'),
             icon: Icons.shopping_cart,
             onTap: onBuyOilseed,
+          ),
+          // Added Byproduct Market
+          _FeatureCard(
+            title: lang.t('byproductMarket'),
+            icon: Icons
+                .compost, // Using compost icon for byproduct/recycling feel
+            onTap: onByproductMarket,
           ),
           _FeatureCard(
             title: lang.t('myOrders'),
@@ -64,6 +76,11 @@ class FeatureCardGrid extends StatelessWidget {
             title: lang.t('recentPost'),
             icon: Icons.article,
             onTap: onRecentPost,
+          ),
+          _FeatureCard(
+            title: lang.t('generateCertificate'),
+            icon: Icons.verified,
+            onTap: onGenerateCertificate,
           ),
         ];
 

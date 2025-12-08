@@ -4,6 +4,7 @@ import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/language_selector.dart';
 import 'package:fasalmitra/widgets/profile_dialog.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
+import 'package:fasalmitra/screens/certificate_generation_screen.dart';
 
 class HomeDrawer extends StatelessWidget {
   const HomeDrawer({
@@ -107,6 +108,16 @@ class HomeDrawer extends StatelessWidget {
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const MyOrdersScreen()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.verified_user),
+            title: const Text('Generate Certificate'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(
+                context,
+              ).pushNamed(CertificateGenerationScreen.routeName);
             },
           ),
           const Spacer(),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fasalmitra/screens/home_page.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
+import 'package:fasalmitra/services/alert_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/tip_service.dart';
 import 'package:fasalmitra/widgets/language_selector.dart';
@@ -74,7 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (err is AuthException) {
         message = err.message;
       }
-      messenger.showSnackBar(SnackBar(content: Text('Error: $message')));
+      if (mounted) {
+        AlertService.instance.show(context, 'Error: $message', AlertType.error);
+      }
     } finally {
       if (mounted) {
         setState(() => _loggingIn = false);
