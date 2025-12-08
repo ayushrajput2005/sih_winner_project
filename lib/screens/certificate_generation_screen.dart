@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/language_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fasalmitra/services/certificate_service.dart';
 import 'package:fasalmitra/services/alert_service.dart';
@@ -128,7 +129,9 @@ class _CertificateGenerationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Generate Quality Certificate')),
+      appBar: AppBar(
+        title: Text(LanguageService.instance.t('generateCertificate')),
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),

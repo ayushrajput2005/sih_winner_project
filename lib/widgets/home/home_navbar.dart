@@ -85,7 +85,7 @@ class HomeNavbar extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'FasalMitra',
+                    lang.t('appName'),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -141,7 +141,7 @@ class HomeNavbar extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'FasalMitra',
+                  lang.t('appName'),
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

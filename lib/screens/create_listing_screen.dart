@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:fasalmitra/services/listing_service.dart';
 import 'package:fasalmitra/services/alert_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/language_service.dart';
 import 'package:file_picker/file_picker.dart';
 
 class CreateListingScreen extends StatefulWidget {
@@ -220,7 +221,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('List New Product')),
+      appBar: AppBar(title: Text(LanguageService.instance.t('listProduct'))),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Center(

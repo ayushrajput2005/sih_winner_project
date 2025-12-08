@@ -1,4 +1,5 @@
 import 'package:fasalmitra/services/listing_service.dart';
+import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/home/product_listing_card.dart';
 import 'package:flutter/material.dart';
 
@@ -126,7 +127,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Marketplace'),
+        title: Text(LanguageService.instance.t('marketplace')),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list_off),

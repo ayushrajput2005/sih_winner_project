@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/order_service.dart';
 import 'package:fasalmitra/widgets/order_card.dart';
 
@@ -30,7 +31,7 @@ class _MyOrdersScreenState extends State<MyOrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: Text(LanguageService.instance.t('myOrders')),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 1,

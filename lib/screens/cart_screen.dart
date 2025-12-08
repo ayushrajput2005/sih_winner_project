@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/cart_service.dart';
 import 'package:fasalmitra/services/order_service.dart';
 
@@ -11,7 +12,7 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Cart'),
+        title: Text(LanguageService.instance.t('myCart')),
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
@@ -27,7 +28,7 @@ class CartScreen extends StatelessWidget {
         builder: (context, _) {
           final items = CartService.instance.items;
           if (items.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -38,8 +39,8 @@ class CartScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Your cart is empty',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                    LanguageService.instance.t('cartEmpty'),
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                 ],
               ),
@@ -170,9 +171,9 @@ class CartScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Total:',
-                            style: TextStyle(
+                          Text(
+                            '${LanguageService.instance.t('total')}:',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -215,7 +216,7 @@ class CartScreen extends StatelessWidget {
                               }
                             }
                           },
-                          child: const Text('Checkout'),
+                          child: Text(LanguageService.instance.t('checkout')),
                         ),
                       ),
                     ],

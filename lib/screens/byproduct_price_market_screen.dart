@@ -158,7 +158,7 @@ class _ByproductPriceMarketScreenState
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Scaffold(
                 appBar: AppBar(
-                  title: Text("Krishisense : Byproduct Market"),
+                  title: Text(lang.t('byproductPriceMarket')),
                 ), // Hardcoded temporarily or use translation
                 body: const Center(child: CircularProgressIndicator()),
               );
@@ -166,7 +166,7 @@ class _ByproductPriceMarketScreenState
 
             if (snapshot.hasError) {
               return Scaffold(
-                appBar: AppBar(title: Text("Byproduct Market")),
+                appBar: AppBar(title: Text(lang.t('byproductPriceMarket'))),
                 body: Center(child: Text('Error: ${snapshot.error}')),
               );
             }
@@ -216,7 +216,7 @@ class _ByproductPriceMarketScreenState
                 title: Text(
                   // lang.t('byproductPriceMarketTitle') // Does not exist
                   // Fallback title
-                  "Byproduct Price Market",
+                  lang.t('byproductPriceMarket'),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,

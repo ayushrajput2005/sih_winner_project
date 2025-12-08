@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
@@ -38,7 +39,7 @@ class _AccountScreenState extends State<AccountScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Account')),
+      appBar: AppBar(title: Text(LanguageService.instance.t('myAccount'))),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),

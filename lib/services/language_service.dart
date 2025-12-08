@@ -28,7 +28,7 @@ class LanguageService extends ChangeNotifier {
   String get currentLanguage => _currentLanguage;
 
   Future<void> changeLanguage(String code) async {
-    if (!_strings.containsKey(code)) return;
+    // if (!_strings.containsKey(code)) return; // Allow dynamic languages
     if (_currentLanguage == code) return;
     _currentLanguage = code;
     await _prefs.setString(_prefsKey, code);
@@ -49,18 +49,29 @@ class LanguageService extends ChangeNotifier {
     // 3. Fetch translation dynamically
     _fetchTranslation(key, _currentLanguage);
 
-    // Return original key while loading
-    return key;
+    // Return original key while loading (or english fallback if available elsewhere)
+    // Here we return key, but maybe we should return English value if available?
+    // Let's return the key for now as keys are often English-ish.
+    return _strings['en']?[key] ?? key;
   }
 
   Future<void> _fetchTranslation(String text, String targetLang) async {
+    // If text is a key, look up English text to translate
+    String textToTranslate = text;
+    if (_strings['en']?.containsKey(text) ?? false) {
+      textToTranslate = _strings['en']![text]!;
+    }
+
     final cacheKey = '$targetLang:$text';
     if (_pendingTranslations.contains(cacheKey)) return;
 
     _pendingTranslations.add(cacheKey);
 
     try {
-      final translation = await _translator.translate(text, to: targetLang);
+      final translation = await _translator.translate(
+        textToTranslate,
+        to: targetLang,
+      );
 
       if (_dynamicCache[targetLang] == null) {
         _dynamicCache[targetLang] = {};
@@ -77,7 +88,7 @@ class LanguageService extends ChangeNotifier {
   }
 
   static List<Locale> get supportedLocales =>
-      _strings.keys.map(Locale.new).toList();
+      supportedLanguages.map((e) => Locale(e['code']!)).toList();
 
   static const List<Map<String, String>> supportedLanguages = [
     {'code': 'en', 'label': 'English'},
@@ -85,6 +96,14 @@ class LanguageService extends ChangeNotifier {
     {'code': 'mr', 'label': 'मराठी'},
     {'code': 'te', 'label': 'తెలుగు'},
     {'code': 'ta', 'label': 'தமிழ்'},
+    {'code': 'gu', 'label': 'ગુજરાતી'}, // Gujarati
+    {'code': 'bn', 'label': 'বাংলা'}, // Bengali
+    {'code': 'kn', 'label': 'కన్నడ'}, // Kannada
+    {'code': 'ml', 'label': 'മലയാളം'}, // Malayalam
+    {'code': 'or', 'label': 'ଓଡ଼ିଆ'}, // Odia
+    {'code': 'pa', 'label': 'ਪੰਜਾਬੀ'}, // Punjabi
+    {'code': 'as', 'label': 'অসমীয়া'}, // Assamese
+    {'code': 'ur', 'label': 'اردو'}, // Urdu
   ];
 }
 
@@ -140,6 +159,19 @@ const Map<String, Map<String, String>> _strings = {
     'enam': 'e-NAM',
     'soilHealth': 'Soil Health Card',
     'generateCertificate': 'Generate Certificate',
+    'myAccount': 'My Account',
+    'ordersReceived': 'Orders Received',
+    'myCart': 'My Cart',
+    'cartEmpty': 'Your cart is empty',
+    'total': 'Total',
+    'checkout': 'Checkout',
+    'date': 'Date',
+    'filterByDate': 'Filter by Date',
+    'sortBy': 'Sort by',
+    'closest': 'Distance: Closest',
+    'priceLow': 'Price: Low to High',
+    'priceHigh': 'Price: High to Low',
+    'recentlyListed': 'Recently Listed',
     'krishiSenseTitle': 'KrishiSense : OilSeed Price Prediction AI',
     'hello': 'Hello',
     'trend': 'Trend',

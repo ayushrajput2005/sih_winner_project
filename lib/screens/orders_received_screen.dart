@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/language_service.dart';
 
 class OrdersReceivedScreen extends StatelessWidget {
   const OrdersReceivedScreen({super.key});
@@ -8,7 +9,7 @@ class OrdersReceivedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Orders Received')),
+      appBar: AppBar(title: Text(LanguageService.instance.t('ordersReceived'))),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: 3,
