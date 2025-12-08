@@ -14,11 +14,12 @@ import 'package:fasalmitra/screens/register_screen.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
 import 'package:fasalmitra/widgets/home/home_navbar.dart';
-import 'package:fasalmitra/widgets/home/secondary_navbar.dart';
+
 import 'package:fasalmitra/widgets/home/banner_carousel.dart';
 import 'package:fasalmitra/widgets/home/feature_card_grid.dart';
 import 'package:fasalmitra/widgets/home/home_footer.dart';
 import 'package:fasalmitra/widgets/home/home_drawer.dart';
+import 'package:fasalmitra/widgets/krishi_mitra_chat.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -86,12 +87,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                SecondaryNavbar(
-                  onListProduct: _handleListProduct,
-                  onMarketplace: _handleMarketplace,
-                  onRecentListings: _handleRecentListings,
-                  onSearchByCategory: _handleSearchByCategory,
-                ),
+
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -130,13 +126,24 @@ class _HomePageState extends State<HomePage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // TODO: Implement help/chat functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Help feature coming soon')),
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: const SizedBox(
+                      height: 500, // Fixed height or dynamic
+                      child: KrishiMitraChat(),
+                    ),
+                  ),
                 );
               },
+              tooltip: 'Ask KrishiMitra AI',
               backgroundColor: Theme.of(context).colorScheme.primary,
-              child: const Icon(Icons.help_outline, color: Colors.white),
+              child: const Icon(Icons.smart_toy, color: Colors.white),
             ),
           ),
         );
@@ -169,86 +176,6 @@ class _HomePageState extends State<HomePage> {
       return;
     }
     Navigator.of(context).pushNamed(MarketplaceScreen.routeName);
-  }
-
-  void _handleRecentListings() {
-    if (!AuthService.instance.isLoggedIn) {
-      AlertService.instance.show(
-        context,
-        'Please login to view listings',
-        AlertType.warning,
-      );
-      Navigator.of(context).pushNamed(LoginScreen.routeName);
-      return;
-    }
-    Navigator.of(context).pushNamed(
-      MarketplaceScreen.routeName,
-      arguments: {'sort': 'date_recent'},
-    );
-  }
-
-  void _handleSearchByCategory() {
-    if (!AuthService.instance.isLoggedIn) {
-      AlertService.instance.show(
-        context,
-        'Please login to search',
-        AlertType.warning,
-      );
-      Navigator.of(context).pushNamed(LoginScreen.routeName);
-      return;
-    }
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Category'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildCategoryTile('Seeds'),
-                _buildCategoryTile('Byproduct'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildCategoryTile(String category) {
-    return ListTile(
-      leading: Icon(
-        _getCategoryIcon(category),
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      title: Text(category),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {
-        Navigator.pop(context); // Close dialog
-        Navigator.of(context).pushNamed(
-          MarketplaceScreen.routeName,
-          arguments: {'category': category},
-        );
-      },
-    );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Seeds':
-        return Icons.eco;
-      case 'Byproduct':
-        return Icons.category; // Or Icons.recycling or specific icon if desired
-      default:
-        return Icons.category;
-    }
   }
 
   void _handleSeedPriceMarket() {

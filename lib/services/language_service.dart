@@ -224,6 +224,7 @@ const Map<String, Map<String, String>> _strings = {
     '1m': '1M',
     '3m': '3M',
     '6m': '6M',
+    'chatIntro': 'Hello! I am KrishiMitra. How can I help you today?',
   },
   'hi': {
     'welcome': 'आपका स्वागत है',
@@ -328,6 +329,7 @@ const Map<String, Map<String, String>> _strings = {
     '1m': '1माह',
     '3m': '3माह',
     '6m': '6माह',
+    'chatIntro': 'नमस्ते! मैं कृषि मित्र हूँ। मैं आपकी कैसे मदद कर सकता हूँ?',
   },
   'mr': {
     'welcome': 'आपला स्वागत आहे',
@@ -432,6 +434,7 @@ const Map<String, Map<String, String>> _strings = {
     '1m': '१महिना',
     '3m': '३महिने',
     '6m': '६महिने',
+    'chatIntro': 'नमस्कार! मी कृषिमित्र आहे. मी तुम्हाला कशी मदत करू शकतो?',
   },
   'te': {
     'welcome': 'స్వాగతం',
@@ -536,6 +539,7 @@ const Map<String, Map<String, String>> _strings = {
     '1m': '1నెల',
     '3m': '3నెలలు',
     '6m': '6నెలలు',
+    'chatIntro': 'నమస్కారం! నేను కృషిమిత్రాను. నేను మీకు ఎలా సహాయపడగలను?',
   },
   'ta': {
     'welcome': 'வரவேற்பு',
@@ -640,5 +644,7 @@ const Map<String, Map<String, String>> _strings = {
     '1m': '1மாதம்',
     '3m': '3மாதம்',
     '6m': '6மாதம்',
+    'chatIntro':
+        'வணக்கம்! நான் விவசாய நண்பன். நான் உங்களுக்கு எப்படி உதவ முடியும்?',
   },
 };
