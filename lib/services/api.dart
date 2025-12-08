@@ -12,6 +12,8 @@ class ApiService {
     defaultValue: 'http://localhost:8000/api',
   );
 
+  String get baseUrl => _baseUrl;
+
   final http.Client _client = http.Client();
 
   Future<Map<String, dynamic>> post(

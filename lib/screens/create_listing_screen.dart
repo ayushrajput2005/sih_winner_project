@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'package:fasalmitra/services/listing_service.dart';
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 
 class CreateListingScreen extends StatefulWidget {
   const CreateListingScreen({super.key});
@@ -19,8 +21,13 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
 
   String? _selectedCategory;
   DateTime? _selectedDate;
-  String? _certificatePath;
-  String? _imagePath;
+
+  Uint8List? _certificateBytes;
+  String? _certificateName;
+
+  Uint8List? _imageBytes;
+  String? _imageName;
+
   String? _location;
   bool _isLoading = false;
 
@@ -59,29 +66,43 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   }
 
   Future<void> _pickFile(bool isCertificate) async {
-    // Mock file picking
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(isCertificate ? 'Pick Certificate' : 'Pick Product Image'),
-        content: const Text('This is a mock file picker.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                if (isCertificate) {
-                  _certificatePath = 'mock_certificate.pdf';
-                } else {
-                  _imagePath = 'mock_image.jpg';
-                }
-              });
-              Navigator.pop(ctx);
-            },
-            child: const Text('Select Mock File'),
-          ),
-        ],
-      ),
-    );
+    try {
+      FilePickerResult? result;
+      if (isCertificate) {
+        // Pick PDF or Images for certificate
+        result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+          withData: true, // Important for Web
+        );
+      } else {
+        // Pick Images only for product image
+        result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          withData: true, // Important for Web
+        );
+      }
+
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+        setState(() {
+          if (isCertificate) {
+            _certificateBytes = file.bytes;
+            _certificateName = file.name;
+          } else {
+            _imageBytes = file.bytes;
+            _imageName = file.name;
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking file: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to pick file: $e')));
+      }
+    }
   }
 
   Future<void> _getLocation() async {
@@ -98,13 +119,13 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
 
   Future<void> _submitListing() async {
     if (_formKey.currentState!.validate()) {
-      if (_certificatePath == null) {
+      if (_certificateBytes == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please upload a certificate')),
         );
         return;
       }
-      if (_imagePath == null) {
+      if (_imageBytes == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please upload a product image')),
         );
@@ -128,8 +149,10 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           quantity: double.parse(_quantityController.text),
           price: double.parse(_priceController.text),
           processingDate: _selectedDate!,
-          certificatePath: _certificatePath!,
-          imagePath: _imagePath!,
+          certificateBytes: _certificateBytes!,
+          certificateName: _certificateName!,
+          imageBytes: _imageBytes!,
+          imageName: _imageName!,
           location: _location!,
         );
 
@@ -259,7 +282,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                         ),
                         const SizedBox(height: 24),
                         const Text(
-                          'Certificate (PDF)',
+                          'Certificate (PDF/JPG)',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
@@ -272,7 +295,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
-                                _certificatePath ?? 'No file chosen',
+                                _certificateName ?? 'No file chosen',
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -293,7 +316,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
-                                _imagePath ?? 'No file chosen',
+                                _imageName ?? 'No file chosen',
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

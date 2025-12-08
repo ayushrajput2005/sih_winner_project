@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/language_selector.dart';
+import 'package:fasalmitra/widgets/profile_dialog.dart';
 
 class HomeDrawer extends StatelessWidget {
   const HomeDrawer({
@@ -53,16 +55,18 @@ class HomeDrawer extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.login),
-            title: Text(lang.t('login')),
-            onTap: onLogin,
-          ),
-          ListTile(
-            leading: const Icon(Icons.person_add),
-            title: Text(lang.t('register')),
-            onTap: onRegister,
-          ),
+          if (!AuthService.instance.isLoggedIn) ...[
+            ListTile(
+              leading: const Icon(Icons.login),
+              title: Text(lang.t('login')),
+              onTap: onLogin,
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_add),
+              title: Text(lang.t('register')),
+              onTap: onRegister,
+            ),
+          ],
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info),
@@ -85,10 +89,13 @@ class HomeDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.person),
-            title: const Text('Account'),
+            title: const Text('User Profile'),
             onTap: () {
               Navigator.of(context).pop();
-              Navigator.of(context).pushNamed('/account');
+              showDialog(
+                context: context,
+                builder: (context) => const ProfileDialog(),
+              );
             },
           ),
           const Spacer(),

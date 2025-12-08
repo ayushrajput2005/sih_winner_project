@@ -98,23 +98,15 @@ class AuthService {
         body: {'email': email, 'password': password},
       );
 
-      if (response['success'] != null) {
-        final body = response['success']['body'];
-        final token = body['token'];
+      if (response['token'] != null) {
+        final token = response['token'];
+        _authToken = token;
+        await _prefs.setString('auth_token', token);
+        await fetchProfile();
 
-        if (token != null) {
-          _authToken = token;
-          await _prefs.setString('auth_token', token);
-          await fetchProfile();
-
-          return MockUserCredential(user: currentUser);
-        } else {
-          throw AuthException('Token missing in response');
-        }
+        return MockUserCredential(user: currentUser);
       } else if (response['error'] != null) {
-        throw AuthException(
-          response['error']['body']['error'] ?? 'Login failed',
-        );
+        throw AuthException(response['error'] ?? 'Login failed');
       } else {
         throw AuthException('Unknown login response');
       }
@@ -136,24 +128,17 @@ class AuthService {
         token: _authToken,
       );
 
-      if (response['success'] != null) {
-        final data = response['success']['body'] as Map<String, dynamic>;
-        // Map API format to Internal format if needed
-        // API: username, email, mobile_no, state, token_balance
-        // Internal expected: id, name, email, phone, state
-        _cachedUser = {
-          'id':
-              data['username'], // Using username as ID for now, or fetch from somewhere else? API doesn't return ID in profile?
-          'name': data['username'],
-          'email': data['email'],
-          'phone': data['mobile_no'],
-          'state': data['state'],
-          ...data,
-        };
-        return _cachedUser!;
-      } else {
-        throw AuthException('Failed to fetch profile data');
-      }
+      // Map API format to Internal format
+      // API: username, email, mobile_no, state, token_balance
+      _cachedUser = {
+        'id': response['username'], // Using username as ID for now
+        'name': response['username'],
+        'email': response['email'],
+        'phone': response['mobile_no'],
+        'state': response['state'],
+        ...response,
+      };
+      return _cachedUser!;
     } catch (e) {
       throw AuthException('Failed to fetch profile: $e');
     }

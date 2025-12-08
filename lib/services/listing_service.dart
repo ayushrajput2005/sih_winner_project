@@ -1,6 +1,7 @@
 import 'package:fasalmitra/services/api.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 
 class ListingData {
@@ -188,9 +189,26 @@ class ListingService {
       final encodedToken = AuthService.instance.token;
       final response = await ApiService.instance.get(path, token: encodedToken);
 
-      if (response['success'] != null) {
-        final list = response['success']['body'] as List;
-        return list.map((item) => ListingData.fromJson(item)).toList();
+      // Backend returns a List directly or wrapped
+      dynamic listData;
+      if (response is List) {
+        listData = response;
+      } else if (response is Map &&
+          response.containsKey('data') &&
+          response['data'] is List) {
+        listData = response['data'];
+      } else if (response is Map &&
+          response['success'] != null &&
+          response['success'] is Map &&
+          response['success']['body'] is List) {
+        // Legacy/Alternative structure check
+        listData = response['success']['body'];
+      }
+
+      if (listData is List) {
+        return listData
+            .map((item) => ListingData.fromJson(item as Map<String, dynamic>))
+            .toList();
       }
       return [];
     } catch (e) {
@@ -201,55 +219,72 @@ class ListingService {
 
   Future<void> createListing({
     required String title,
-    required String
-    category, // 'Seeds' or 'Byproduct' to mapped to 'seeds'/'byproduct'
+    required String category, // 'Seeds' or 'Byproduct'
     required double quantity,
     required double price,
     required DateTime processingDate,
-    required String certificatePath,
-    required String imagePath,
+    required Uint8List certificateBytes,
+    required String certificateName,
+    required Uint8List imageBytes,
+    required String imageName,
     required String location,
   }) async {
     final token = AuthService.instance.token;
     if (token == null) throw Exception('User not logged in');
 
     // Map fields to API request
-    // type: 'seeds' or 'byproduct'
     final type = category.toLowerCase().contains('seed')
         ? 'seeds'
         : 'byproduct';
-    // quality: hardcoded to 'good' or passed? arguments didn't have quality. I'll default.
 
-    // Prepare files
-    List<http.MultipartFile> files = [];
-    if (imagePath.isNotEmpty && !imagePath.startsWith('http')) {
-      files.add(await http.MultipartFile.fromPath('image', imagePath));
-    }
-    if (certificatePath.isNotEmpty && !certificatePath.startsWith('http')) {
-      files.add(
-        await http.MultipartFile.fromPath('certificate', certificatePath),
-      );
-    }
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${ApiService.instance.baseUrl}/create/'),
+    );
 
-    final fields = {
+    request.headers['Authorization'] = 'Bearer $token';
+
+    request.fields.addAll({
       'type': type,
       'product_name': title,
-      'date_of_listing': processingDate.toIso8601String().split(
-        'T',
-      )[0], // YYYY-MM-DD
+      'date_of_listing': processingDate.toIso8601String().split('T')[0],
       'amount_kg': quantity.toString(),
       'market_price_per_kg_inr': price.toString(),
       'location': location,
-      'quality': 'good', // Defaulting as UI doesn't allow selection yet
-    };
+      'quality': 'good',
+    });
 
-    await ApiService.instance.multipartRequest(
-      'POST',
-      '/create/',
-      fields: fields,
-      files: files,
-      token: token,
-    );
+    // Helper to add file from bytes
+    void addFile(String fieldName, Uint8List bytes, String filename) {
+      MediaType? contentType;
+      if (filename.toLowerCase().endsWith('.pdf')) {
+        contentType = MediaType('application', 'pdf');
+      } else if (filename.toLowerCase().endsWith('.jpg') ||
+          filename.toLowerCase().endsWith('.jpeg')) {
+        contentType = MediaType('image', 'jpeg');
+      } else if (filename.toLowerCase().endsWith('.png')) {
+        contentType = MediaType('image', 'png');
+      }
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          fieldName,
+          bytes,
+          filename: filename,
+          contentType: contentType,
+        ),
+      );
+    }
+
+    addFile('image', imageBytes, imageName);
+    addFile('certificate', certificateBytes, certificateName);
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Failed to create listing: ${response.body}');
+    }
   }
 
   Future<void> updateListing(String id, Map<String, dynamic> data) async {

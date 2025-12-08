@@ -44,15 +44,20 @@ class OrderService {
     try {
       final response = await ApiService.instance.get('/orders/', token: token);
 
-      if (response['success'] != null) {
-        final list = response['success']['body'] as List;
+      // ApiService logic: if it's a list, it might wrap in {data: List} or return list.
+      // Based on ApiService.dart: if body is list, returns {data: list} or list?
+      // "return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{'data': decoded};"
+      // So simple list becomes {'data': [...]}.
+
+      if (response['data'] is List) {
+        final list = response['data'] as List;
         return list.map((item) {
           return {
             'id': item['id'].toString(),
             'product': item['product_name'] ?? 'Unknown',
             'amount': '₹${item['amount']}',
             'status': item['status'],
-            'date': item['date'], // Formatted?
+            'date': item['date'],
           };
         }).toList();
       }

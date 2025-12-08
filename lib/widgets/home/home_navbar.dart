@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fasalmitra/widgets/language_selector.dart';
+import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/hoverable.dart';
+import 'package:fasalmitra/widgets/profile_dialog.dart';
 
 class HomeNavbar extends StatelessWidget {
   const HomeNavbar({
@@ -203,31 +205,33 @@ class HomeNavbar extends StatelessWidget {
 
                 const SizedBox(width: 8),
 
-                // Login button
-                Hoverable(
-                  child: OutlinedButton(
-                    onPressed: onLogin,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white),
+                if (!AuthService.instance.isLoggedIn) ...[
+                  // Login button
+                  Hoverable(
+                    child: OutlinedButton(
+                      onPressed: onLogin,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white),
+                      ),
+                      child: Text(lang.t('login')),
                     ),
-                    child: Text(lang.t('login')),
                   ),
-                ),
 
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
-                // Register button (highlighted)
-                Hoverable(
-                  child: FilledButton(
-                    onPressed: onRegister,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: theme.colorScheme.primary,
+                  // Register button (highlighted)
+                  Hoverable(
+                    child: FilledButton(
+                      onPressed: onRegister,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: theme.colorScheme.primary,
+                      ),
+                      child: Text(lang.t('register')),
                     ),
-                    child: Text(lang.t('register')),
                   ),
-                ),
+                ],
 
                 const SizedBox(width: 8),
 
@@ -246,10 +250,13 @@ class HomeNavbar extends StatelessWidget {
                 Hoverable(
                   child: IconButton(
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/account');
+                      showDialog(
+                        context: context,
+                        builder: (context) => const ProfileDialog(),
+                      );
                     },
                     icon: const Icon(Icons.person, color: Colors.white),
-                    tooltip: 'Account',
+                    tooltip: 'User Profile',
                   ),
                 ),
               ],
