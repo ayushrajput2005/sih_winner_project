@@ -228,6 +228,7 @@ class ListingService {
     required Uint8List imageBytes,
     required String imageName,
     required String location,
+    required String quality,
   }) async {
     final token = AuthService.instance.token;
     if (token == null) throw Exception('User not logged in');
@@ -251,7 +252,7 @@ class ListingService {
       'amount_kg': quantity.toString(),
       'market_price_per_kg_inr': price.toString(),
       'location': location,
-      'quality': 'good',
+      'quality': quality.toLowerCase(),
     });
 
     // Helper to add file from bytes

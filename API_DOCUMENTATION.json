@@ -137,7 +137,7 @@
                     "certificate": "file (optional) - PDF/image file",
                     "image": "file (optional) - product image",
                     "location": "string (optional)",
-                    "quality": "string (optional) - 'good', 'mid', or 'bad'"
+                    "quality": "string (optional) - 'Good', 'Mid', or 'Poor'"
                 },
                 "example": {
                     "type": "seeds",

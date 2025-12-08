@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:fasalmitra/services/listing_service.dart';
 
@@ -64,7 +65,7 @@ class ProductListingCard extends StatelessWidget {
                       '${listing.quantity?.toStringAsFixed(0) ?? 0} kg',
                     ),
                     _buildRow('Loc', listing.location ?? ''), // Shortened label
-                    // _buildRow('Quality', listing.quality ?? ''), // Optional: remove if too crowded, or keep
+                    _buildRow('Quality', listing.quality ?? 'N/A'),
                     if (listing.processingDate != null)
                       _buildRow(
                         'Date', // Shortened label
@@ -73,15 +74,24 @@ class ProductListingCard extends StatelessWidget {
 
                     const SizedBox(height: 4),
 
-                    if (listing.certificateUrl != null ||
-                        listing.certificateGrade != null)
+                    if (listing.certificateUrl != null &&
+                        listing.certificateUrl!.isNotEmpty)
                       InkWell(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Viewing Certificate'),
-                            ),
-                          );
+                        onTap: () async {
+                          final uri = Uri.parse(listing.certificateUrl!);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Could not open ${listing.certificateUrl}',
+                                  ),
+                                ),
+                              );
+                            }
+                          }
                         },
                         child: Text(
                           'View Certificate',

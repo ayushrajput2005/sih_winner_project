@@ -28,7 +28,8 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   Uint8List? _imageBytes;
   String? _imageName;
 
-  String? _location;
+  String? _selectedLocation;
+  String? _selectedQuality;
   bool _isLoading = false;
 
   final List<String> _categories = [
@@ -39,6 +40,47 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     'Vegetables',
     'Fruits',
     'Grains',
+  ];
+
+  final List<String> _qualities = ['Good', 'Mid', 'Poor'];
+
+  final List<String> _states = [
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
+    'Andaman and Nicobar Islands',
+    'Chandigarh',
+    'Dadra and Nagar Haveli and Daman and Diu',
+    'Delhi',
+    'Jammu and Kashmir',
+    'Ladakh',
+    'Lakshadweep',
+    'Puducherry',
   ];
 
   @override
@@ -105,18 +147,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     }
   }
 
-  Future<void> _getLocation() async {
-    setState(() {
-      _isLoading = true;
-    });
-    // Mock location fetching
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      _location = '12.9716° N, 77.5946° E (Bangalore)';
-      _isLoading = false;
-    });
-  }
-
   Future<void> _submitListing() async {
     if (_formKey.currentState!.validate()) {
       if (_certificateBytes == null) {
@@ -131,9 +161,16 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
         );
         return;
       }
-      if (_location == null) {
+      // Ensure dropdowns are selected (though validate() on DropdownFormField should handle this if set up correctly, explicit check is safe)
+      if (_selectedLocation == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please get your location')),
+          const SnackBar(content: Text('Please select a location')),
+        );
+        return;
+      }
+      if (_selectedQuality == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select product quality')),
         );
         return;
       }
@@ -153,7 +190,8 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
           certificateName: _certificateName!,
           imageBytes: _imageBytes!,
           imageName: _imageName!,
-          location: _location!,
+          location: _selectedLocation!,
+          quality: _selectedQuality!,
         );
 
         if (!mounted) return;
@@ -280,6 +318,29 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             return null;
                           },
                         ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          // ignore: deprecated_member_use
+                          value: _selectedQuality,
+                          decoration: const InputDecoration(
+                            labelText: 'Quality',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.grade),
+                          ),
+                          items: _qualities.map((String q) {
+                            return DropdownMenuItem<String>(
+                              value: q,
+                              child: Text(q),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedQuality = newValue;
+                            });
+                          },
+                          validator: (value) =>
+                              value == null ? 'Please select quality' : null,
+                        ),
                         const SizedBox(height: 24),
                         const Text(
                           'Certificate (PDF/JPG)',
@@ -323,26 +384,27 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Text(
-                          'Location',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            OutlinedButton.icon(
-                              onPressed: _getLocation,
-                              icon: const Icon(Icons.location_on),
-                              label: const Text('Get Location'),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                _location ?? 'Location not fetched',
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                        DropdownButtonFormField<String>(
+                          // ignore: deprecated_member_use
+                          value: _selectedLocation,
+                          decoration: const InputDecoration(
+                            labelText: 'State / Location',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.location_on),
+                          ),
+                          items: _states.map((String state) {
+                            return DropdownMenuItem<String>(
+                              value: state,
+                              child: Text(state),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedLocation = newValue;
+                            });
+                          },
+                          validator: (value) =>
+                              value == null ? 'Please select a location' : null,
                         ),
                         const SizedBox(height: 32),
                         SizedBox(
