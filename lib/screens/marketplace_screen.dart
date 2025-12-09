@@ -349,6 +349,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                               ),
                             );
                           },
+                          onPurchaseSuccess: _loadListings,
                         );
                       },
                     );

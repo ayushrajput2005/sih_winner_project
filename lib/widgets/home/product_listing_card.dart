@@ -7,10 +7,16 @@ import 'package:fasalmitra/widgets/home/purchase_dialog.dart';
 import 'package:fasalmitra/services/language_service.dart';
 
 class ProductListingCard extends StatelessWidget {
-  const ProductListingCard({super.key, required this.listing, this.onTap});
+  const ProductListingCard({
+    super.key,
+    required this.listing,
+    this.onTap,
+    this.onPurchaseSuccess,
+  });
 
   final ListingData listing;
   final VoidCallback? onTap;
+  final VoidCallback? onPurchaseSuccess;
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +141,7 @@ class ProductListingCard extends StatelessWidget {
                               // Buy Now Button
                               Expanded(
                                 child: InkWell(
-                                  onTap: () {
+                                  onTap: () async {
                                     if (!AuthService.instance.isLoggedIn) {
                                       ScaffoldMessenger.of(
                                         context,
@@ -151,11 +157,15 @@ class ProductListingCard extends StatelessWidget {
                                       return;
                                     }
 
-                                    showDialog(
+                                    final result = await showDialog(
                                       context: context,
                                       builder: (_) =>
                                           PurchaseDialog(listing: listing),
                                     );
+
+                                    if (result == true) {
+                                      onPurchaseSuccess?.call();
+                                    }
                                   },
                                   child: Container(
                                     alignment: Alignment.center,

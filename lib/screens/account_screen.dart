@@ -19,7 +19,15 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   void initState() {
     super.initState();
+    _initData();
+  }
+
+  Future<void> _initData() async {
     _checkLogin();
+    if (AuthService.instance.isLoggedIn) {
+      await AuthService.instance.fetchProfile();
+      if (mounted) setState(() {});
+    }
   }
 
   void _checkLogin() {

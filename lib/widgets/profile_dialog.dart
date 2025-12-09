@@ -2,8 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 
-class ProfileDialog extends StatelessWidget {
+class ProfileDialog extends StatefulWidget {
   const ProfileDialog({super.key});
+
+  @override
+  State<ProfileDialog> createState() => _ProfileDialogState();
+}
+
+class _ProfileDialogState extends State<ProfileDialog> {
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshProfile();
+  }
+
+  Future<void> _refreshProfile() async {
+    if (AuthService.instance.isLoggedIn) {
+      setState(() => _isLoading = true);
+      try {
+        await AuthService.instance.fetchProfile();
+      } catch (e) {
+        // Ignore error, will show cached data or N/A
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +39,7 @@ class ProfileDialog extends StatelessWidget {
     return AnimatedBuilder(
       animation: LanguageService.instance,
       builder: (context, child) {
-        if (user == null) {
+        if (user == null && !_isLoading) {
           return Dialog(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -53,110 +79,119 @@ class ProfileDialog extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(24),
             constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.person, color: theme.primaryColor, size: 28),
-                    const SizedBox(width: 12),
-                    Text(
-                      LanguageService.instance.t('userProfile'),
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: theme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.of(context).pop(),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-                const Divider(height: 32),
-                _buildProfileRow(
-                  context,
-                  LanguageService.instance.t('usernameLabel'),
-                  user['username']?.toString() ?? 'N/A',
-                ),
-                _buildProfileRow(
-                  context,
-                  LanguageService.instance.t('emailLabel'),
-                  user['email']?.toString() ?? 'N/A',
-                ),
-                _buildProfileRow(
-                  context,
-                  LanguageService.instance.t('mobileLabel'),
-                  user['mobile_no']?.toString() ??
-                      user['phone']?.toString() ??
-                      'N/A',
-                ),
-                _buildProfileRow(
-                  context,
-                  LanguageService.instance.t('stateLabel'),
-                  user['state']?.toString() ?? 'N/A',
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: theme.primaryColor.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Column(
+            child: _isLoading
+                ? const SizedBox(
+                    height: 200,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        LanguageService.instance.t('tokenBalance'),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.primaryColor,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            color: theme.primaryColor,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            LanguageService.instance.t('userProfile'),
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: theme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.of(context).pop(),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 32),
+                      _buildProfileRow(
+                        context,
+                        LanguageService.instance.t('usernameLabel'),
+                        user?['username']?.toString() ?? 'N/A',
+                      ),
+                      _buildProfileRow(
+                        context,
+                        LanguageService.instance.t('emailLabel'),
+                        user?['email']?.toString() ?? 'N/A',
+                      ),
+                      _buildProfileRow(
+                        context,
+                        LanguageService.instance.t('mobileLabel'),
+                        user?['mobile_no']?.toString() ??
+                            user?['phone']?.toString() ??
+                            'N/A',
+                      ),
+                      _buildProfileRow(
+                        context,
+                        LanguageService.instance.t('stateLabel'),
+                        user?['state']?.toString() ?? 'N/A',
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: theme.primaryColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: theme.primaryColor.withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              LanguageService.instance.t('tokenBalance'),
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              user?['token_balance']?.toString() ?? '0.00',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                color: theme.primaryColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user['token_balance']?.toString() ?? '0.00',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          color: theme.primaryColor,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            await AuthService.instance.signOut();
+                            // Close dialog
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                              // Force refresh/redirect to home
+                              Navigator.of(
+                                context,
+                              ).pushNamedAndRemoveUntil('/', (route) => false);
+                            }
+                          },
+                          icon: const Icon(Icons.logout, color: Colors.red),
+                          label: Text(
+                            LanguageService.instance.t('logout'),
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      await AuthService.instance.signOut();
-                      // Close dialog
-                      if (context.mounted) {
-                        Navigator.of(context).pop();
-                        // Force refresh/redirect to home
-                        Navigator.of(
-                          context,
-                        ).pushNamedAndRemoveUntil('/', (route) => false);
-                      }
-                    },
-                    icon: const Icon(Icons.logout, color: Colors.red),
-                    label: Text(
-                      LanguageService.instance.t('logout'),
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         );
       },

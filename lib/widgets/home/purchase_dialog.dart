@@ -23,18 +23,29 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
     _fetchWalletBalance();
   }
 
-  void _fetchWalletBalance() {
-    final user = AuthService.instance.cachedUser;
-    if (user != null && user['token_balance'] != null) {
-      setState(() {
-        _walletBalance = user['token_balance'].toString();
-      });
-    } else {
-      // Fallback or fetch profile again?
-      // For now, assuming profile is up to date since we access this only when logged in.
-      setState(() {
-        _walletBalance = '0.00';
-      });
+  Future<void> _fetchWalletBalance() async {
+    try {
+      if (AuthService.instance.isLoggedIn) {
+        await AuthService.instance.fetchProfile();
+      }
+      if (!mounted) return;
+
+      final user = AuthService.instance.cachedUser;
+      if (user != null && user['token_balance'] != null) {
+        setState(() {
+          _walletBalance = user['token_balance'].toString();
+        });
+      } else {
+        setState(() {
+          _walletBalance = '0.00';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _walletBalance = 'Error';
+        });
+      }
     }
   }
 
@@ -46,7 +57,9 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
     try {
       await ListingService.instance.buyProduct(widget.listing.id);
       if (mounted) {
-        Navigator.of(context).pop(); // Close purchase dialog
+        Navigator.of(
+          context,
+        ).pop(true); // Close purchase dialog with success result
 
         await showDialog(
           context: context,
