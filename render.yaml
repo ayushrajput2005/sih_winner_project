@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: fasalmitra-backend
+    env: python
+    region: oregon
+    rootDir: backend_django/oil/marketplace
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn main_marketplace.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fasal_mitra_zuvc
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+databases:
+  - name: fasal_mitra_zuvc
+    databaseName: fasal_mitra_zuvc
+    user: fasal_mitra_zuvc_user
+    plan: free
