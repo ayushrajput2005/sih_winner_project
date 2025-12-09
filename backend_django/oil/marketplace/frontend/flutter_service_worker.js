@@ -4,12 +4,20 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
 const RESOURCES = {"flutter.js": "888483df48293866f9f41d3d9274a779",
+<<<<<<< HEAD
 "main.dart.js": "40b9d747739e6a481c20cd3a9724878d",
+=======
+"main.dart.js": "3477a9c620ba463b35e13ad78248e387",
+>>>>>>> e668d40 (fixing bugs)
 "version.json": "ae68cb50a982054f63ba0ba3dfa8fa79",
 "index.html": "9fcd2d1de6ff5469854dd7ceab73eae5",
 "/": "9fcd2d1de6ff5469854dd7ceab73eae5",
 "manifest.json": "91d223b2f47d72468b9296ffc8903df4",
+<<<<<<< HEAD
 "flutter_bootstrap.js": "dde9c67dd187869325733265b355ff3a",
+=======
+"flutter_bootstrap.js": "d23d571b1f52ae33dd1484b9d82a5f31",
+>>>>>>> e668d40 (fixing bugs)
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
@@ -26,6 +34,7 @@ const RESOURCES = {"flutter.js": "888483df48293866f9f41d3d9274a779",
 "canvaskit/chromium/canvaskit.js": "5e27aae346eee469027c80af0751d53d",
 "canvaskit/chromium/canvaskit.wasm": "24c77e750a7fa6d474198905249ff506",
 "canvaskit/chromium/canvaskit.js.symbols": "193deaca1a1424049326d4a91ad1d88d",
+<<<<<<< HEAD
 "assets/AssetManifest.bin.json": "b47c1c9068c809e4f4c1356c7345e700",
 "assets/NOTICES": "fa42450baf0d69e4553f044484219857",
 "assets/AssetManifest.json": "346fda7b085c053ba44fd439f449c478",
@@ -39,6 +48,20 @@ const RESOURCES = {"flutter.js": "888483df48293866f9f41d3d9274a779",
 "assets/assets/images/banners/banner3.png": "4b2861c2705661735498d8abfaea60fa",
 "assets/assets/images/banners/banner1.jpg": "b5ad963c1fa7958eb5e182067282731a",
 "assets/assets/images/banners/banner4.png": "d61ea20885d04f0e785898707b4d02ad",
+=======
+"assets/AssetManifest.bin.json": "6d5e5b073d7859267eb800f348a9cd88",
+"assets/NOTICES": "fa42450baf0d69e4553f044484219857",
+"assets/AssetManifest.json": "329acf5ad9bd9f38d5ed0ae1212bd0f1",
+"assets/fonts/MaterialIcons-Regular.otf": "c41be9b60a8ac3e8fa0581b547193cb1",
+"assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
+"assets/FontManifest.json": "7b2a36307916a9721811788013e65289",
+"assets/AssetManifest.bin": "a1cbfcf1e47fc743830749a98aac46ae",
+"assets/assets/data/farmer_tips.json": "6e70702cddfe5bb58d06903c470ba865",
+"assets/assets/images/farmer_mobile.svg": "8d9e261e2b20c1dcf460df5f7d8b05e2",
+"assets/assets/images/banners/banner3.png": "4b2861c2705661735498d8abfaea60fa",
+"assets/assets/images/banners/banner1.jpg": "b5ad963c1fa7958eb5e182067282731a",
+"assets/assets/images/banners/banner4.png": "df509d3892417c216bd39e4b1ad96ac9",
+>>>>>>> e668d40 (fixing bugs)
 "assets/assets/images/banners/banner5.png": "d2feddc96f343d8997057a6956e67700",
 "assets/assets/images/banners/banner2.jpg": "cb4478ce4d7218bc11c2c52ea5dd95e7",
 "assets/assets/images/gov_of_india.png": "11f25671a5973305d0451817f98e92ae",

@@ -110,3 +110,6 @@ Thumbs.db
 *.tmp
 *.bak
 *~
+
+# Django virtual environments
+backend_django/oil/marketplace/venv/
