@@ -38,10 +38,6 @@ _flutter.buildConfig = {"engineRevision":"d2913632a4578ee4d0b8b1c4a69888c8a0672c
 
 _flutter.loader.load({
   entrypointBaseUrl: "/static/", serviceWorkerSettings: {
-<<<<<<< HEAD
-    serviceWorkerVersion: "1431489600"
-=======
-    serviceWorkerVersion: "3321148644"
->>>>>>> e668d40 (fixing bugs)
+    serviceWorkerVersion: "2559800190"
   }
 });

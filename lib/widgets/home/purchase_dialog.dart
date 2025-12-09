@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/listing_service.dart';
+import 'package:fasalmitra/services/language_service.dart';
+import 'package:fasalmitra/widgets/common/success_dialog.dart';
 
 class PurchaseDialog extends StatefulWidget {
   final ListingData listing;
@@ -44,13 +46,15 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
     try {
       await ListingService.instance.buyProduct(widget.listing.id);
       if (mounted) {
-        Navigator.of(context).pop(); // Close dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Successfully purchased ${widget.listing.quantity?.toStringAsFixed(2) ?? ""}kg of ${widget.listing.title}. Funds in Escrow.',
-            ),
-            backgroundColor: Colors.green,
+        Navigator.of(context).pop(); // Close purchase dialog
+
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => SuccessDialog(
+            message:
+                '${LanguageService.instance.t("purchaseSuccess")} ${widget.listing.quantity?.toStringAsFixed(2) ?? ""}kg ${LanguageService.instance.t(widget.listing.title)}. ${LanguageService.instance.t("fundsInEscrow")}',
+            onDismiss: () => Navigator.of(context).pop(),
           ),
         );
       }
@@ -77,110 +81,126 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
     // Calculate total cost
     final totalCost = (widget.listing.price) * (widget.listing.quantity ?? 1);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Section: Payment Types Img Placeholder
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
+    return AnimatedBuilder(
+      animation: LanguageService.instance,
+      builder: (context, child) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Top Section: Payment Types Img Placeholder
+                Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
+                    border: Border(
+                      bottom: BorderSide(color: Colors.black, width: 2),
+                    ),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/payments.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  alignment: Alignment.center,
                 ),
-                border: Border(
-                  bottom: BorderSide(color: Colors.black, width: 2),
-                ),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/payments.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-              alignment: Alignment.center,
-            ),
 
-            // Bottom Section: Wallet Balance & Actions
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(12),
+                // Bottom Section: Wallet Balance & Actions
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(12),
+                    ),
+                    border: Border.all(color: Colors.black, width: 2),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        LanguageService.instance.t('walletBalance'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '₹ ${_walletBalance ?? "..."}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      if (_isLoading)
+                        const CircularProgressIndicator()
+                      else
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.black,
+                                  side: const BorderSide(color: Colors.black),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  LanguageService.instance.t('cancelPurchase'),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _handlePurchase,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
+                                  side: const BorderSide(
+                                    color: Colors.black,
+                                    width: 2,
+                                  ),
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  '${LanguageService.instance.t("pay")} ₹${totalCost.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
-                border: Border.all(color: Colors.black, width: 2),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    'Wallet Balance',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '₹ ${_walletBalance ?? "..."}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  if (_isLoading)
-                    const CircularProgressIndicator()
-                  else
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.black,
-                              side: const BorderSide(color: Colors.black),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text('Cancel Purchase'),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _handlePurchase,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.black,
-                              side: const BorderSide(
-                                color: Colors.black,
-                                width: 2,
-                              ),
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              'Pay ₹${totalCost.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                ],
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
