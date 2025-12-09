@@ -267,7 +267,15 @@ class BuyProductView(APIView):
                      return Response({"error": "Product is out of stock"}, status=status.HTTP_400_BAD_REQUEST)
                 
                 total_price = quantity_to_buy * product.market_price_per_kg_inr
+                
+                # Fee Calculation (0.25%)
+                fee_percentage = 0.0025
+                fee_amount = float(total_price) * fee_percentage
+                total_payable = float(total_price) + fee_amount
+                
                 total_price_wei = web3.to_wei(total_price, 'ether')
+                fee_wei = web3.to_wei(fee_amount, 'ether')
+                total_payable_wei = total_price_wei + fee_wei
 
                 # BLOCKCHAIN TRANSACTION
                 buyer_address = user_profile.wallet_address
@@ -275,11 +283,25 @@ class BuyProductView(APIView):
                 
                 # Check Balance
                 balance_wei = token_contract.functions.balanceOf(buyer_address).call()
-                if balance_wei < total_price_wei:
-                    return Response({"error": "Funds not available"}, status=status.HTTP_400_BAD_REQUEST)
+                if balance_wei < total_payable_wei:
+                    return Response({"error": f"Funds not available. Required: {total_payable}, Balance: {web3.from_wei(balance_wei, 'ether')}"}, status=status.HTTP_400_BAD_REQUEST)
 
-                # 1. Approve Escrow
+                # Get initial nonce
                 nonce = web3.eth.get_transaction_count(buyer_address)
+                
+                # 1. Transfer Fee to Owner
+                fee_tx = token_contract.functions.transfer(OWNER_ADDRESS, fee_wei).build_transaction({
+                    'from': buyer_address,
+                    'nonce': nonce,
+                    'gas': 200000,
+                    'gasPrice': web3.to_wei('30', 'gwei')
+                })
+                signed_fee_tx = web3.eth.account.sign_transaction(fee_tx, buyer_private_key)
+                tx_hash_fee = web3.eth.send_raw_transaction(signed_fee_tx.raw_transaction)
+                web3.eth.wait_for_transaction_receipt(tx_hash_fee) # Wait for fee transfer
+                
+                # 2. Approve Escrow (for Product Price)
+                nonce += 1 # Increment nonce manually since we just sent a tx
                 approve_tx = token_contract.functions.approve(ESCROW_ADDRESS, total_price_wei).build_transaction({
                     'from': buyer_address,
                     'nonce': nonce,
@@ -290,8 +312,8 @@ class BuyProductView(APIView):
                 tx_hash_approve = web3.eth.send_raw_transaction(signed_approve.raw_transaction)
                 web3.eth.wait_for_transaction_receipt(tx_hash_approve) # Wait for approval
                 
-                # 2. Deposit to Escrow
-                nonce = web3.eth.get_transaction_count(buyer_address) # Update nonce
+                # 3. Deposit to Escrow
+                nonce += 1 # Increment nonce again
                 deposit_tx = escrow_contract.functions.deposit(total_price_wei).build_transaction({
                     'from': buyer_address,
                     'nonce': nonce,
@@ -306,6 +328,7 @@ class BuyProductView(APIView):
                     buyer=user,
                     product=product,
                     amount_token=total_price,
+                    fee=fee_amount,
                     status='DEPOSITED',
                     tx_hash_deposit=tx_hash_deposit.hex()
                 )
@@ -313,7 +336,7 @@ class BuyProductView(APIView):
                 product.amount_kg = 0
                 product.save()
                 
-                return Response({"message": f"Successfully purchased {quantity_to_buy}kg of {product.product_name}. Funds in Escrow."})
+                return Response({"message": f"Successfully purchased {quantity_to_buy}kg of {product.product_name}. Fee: {fee_amount}. Funds in Escrow."})
         except Product.DoesNotExist:
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:

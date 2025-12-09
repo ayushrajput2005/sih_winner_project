@@ -153,6 +153,36 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
                         ),
                       ),
                       const SizedBox(height: 32),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildInvoiceRow(
+                              LanguageService.instance.t('productCost'),
+                              totalCost,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInvoiceRow(
+                              '${LanguageService.instance.t('transactionFee')} (0.25%)',
+                              totalCost * 0.0025,
+                            ),
+                            const Divider(height: 24, thickness: 1),
+                            _buildInvoiceRow(
+                              LanguageService.instance.t('totalPayable'),
+                              totalCost * 1.0025,
+                              isBold: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                       if (_isLoading)
                         const CircularProgressIndicator()
                       else
@@ -197,7 +227,7 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
                                   ),
                                 ),
                                 child: Text(
-                                  '${LanguageService.instance.t("pay")} ₹${totalCost.toStringAsFixed(2)}',
+                                  '${LanguageService.instance.t("pay")} ₹${(totalCost * 1.0025).toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -214,6 +244,30 @@ class _PurchaseDialogState extends State<PurchaseDialog> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildInvoiceRow(String label, double amount, {bool isBold = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: isBold ? 16 : 14,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: isBold ? Colors.black : Colors.grey[700],
+          ),
+        ),
+        Text(
+          '₹${amount.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: isBold ? 16 : 14,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: isBold ? Colors.black : Colors.grey[900],
+          ),
+        ),
+      ],
     );
   }
 }
