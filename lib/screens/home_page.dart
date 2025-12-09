@@ -7,7 +7,7 @@ import 'package:fasalmitra/screens/phone_login.dart';
 import 'package:fasalmitra/screens/create_listing_screen.dart';
 import 'package:fasalmitra/screens/marketplace_screen.dart';
 import 'package:fasalmitra/screens/my_orders_screen.dart';
-import 'package:fasalmitra/screens/certificate_generation_screen.dart';
+
 import 'package:fasalmitra/screens/price_prediction_screen.dart';
 import 'package:fasalmitra/screens/byproduct_price_market_screen.dart';
 import 'package:fasalmitra/screens/register_screen.dart';
@@ -21,6 +21,7 @@ import 'package:fasalmitra/widgets/home/feature_card_grid.dart';
 import 'package:fasalmitra/widgets/home/home_footer.dart';
 import 'package:fasalmitra/widgets/home/home_drawer.dart';
 import 'package:fasalmitra/widgets/krishi_mitra_chat.dart';
+import 'package:fasalmitra/widgets/profile_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -117,17 +118,14 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 32),
                             FeatureCardGrid(
                               onSeedPriceMarket: _handleSeedPriceMarket,
-                              onSellOilseed: _handleListProduct,
                               onBuyOilseed:
                                   _handleMarketplace, // Now acts as Seed Market
                               onByproductMarket: _handleByproductMarket,
                               onByproductPriceMarket:
                                   _handleByproductPriceMarket,
                               onMyOrders: _handleMyOrders,
-
-                              onSearchOilSeed: _handleSearchOilSeed,
                               onLearn: _handleLearn,
-                              onGenerateCertificate: _handleGenerateCertificate,
+                              onMyAccount: _handleMyAccount,
                             ),
                             const SizedBox(height: 64),
                             HomeFooter(
@@ -282,16 +280,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).pushNamed(ByproductPriceMarketScreen.routeName);
   }
 
-  void _handleGenerateCertificate() {
-    if (!AuthService.instance.isLoggedIn) {
-      AlertService.instance.show(
-        context,
-        LanguageService.instance.t('pleaseLoginCert'),
-        AlertType.warning,
-      );
-      Navigator.of(context).pushNamed(LoginScreen.routeName);
-      return;
-    }
-    Navigator.of(context).pushNamed(CertificateGenerationScreen.routeName);
+  void _handleMyAccount() {
+    showDialog(context: context, builder: (context) => const ProfileDialog());
   }
 }

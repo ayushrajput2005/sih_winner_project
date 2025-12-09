@@ -4,7 +4,7 @@ import 'package:fasalmitra/services/auth_service.dart';
 import 'package:fasalmitra/services/font_size_service.dart';
 import 'package:fasalmitra/services/language_service.dart';
 import 'package:fasalmitra/widgets/hoverable.dart';
-import 'package:fasalmitra/widgets/profile_dialog.dart';
+
 import 'package:fasalmitra/screens/my_orders_screen.dart';
 
 class HomeNavbar extends StatelessWidget {
@@ -244,20 +244,6 @@ class HomeNavbar extends StatelessWidget {
                     },
                     icon: const Icon(Icons.shopping_cart, color: Colors.white),
                     tooltip: 'Cart',
-                  ),
-                ),
-
-                // Profile Icon
-                Hoverable(
-                  child: IconButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const ProfileDialog(),
-                      );
-                    },
-                    icon: const Icon(Icons.person, color: Colors.white),
-                    tooltip: 'User Profile',
                   ),
                 ),
 

@@ -237,6 +237,111 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     }
   }
 
+  Future<void> _viewCertificate() async {
+    if (_certificateBytes == null || _certificateName == null) return;
+
+    // Determine if it is an image
+    bool isImage =
+        _certificateName!.toLowerCase().endsWith('.jpg') ||
+        _certificateName!.toLowerCase().endsWith('.jpeg') ||
+        _certificateName!.toLowerCase().endsWith('.png');
+
+    await showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header with title and close button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      LanguageService.instance.t('certificate'),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // Content
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+                maxWidth: MediaQuery.of(context).size.width * 0.9,
+              ),
+              child: isImage
+                  ? InteractiveViewer(
+                      child: Image.memory(
+                        _certificateBytes!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  size: 48,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(height: 16),
+                                Text('Failed to load image: $error'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.description,
+                            size: 64,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _certificateName!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Preview not available for this file type.',
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _submitListing() async {
     if (_formKey.currentState!.validate()) {
       if (_certificateBytes == null) {
@@ -585,6 +690,11 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.visibility),
+                                          tooltip: 'View Certificate',
+                                          onPressed: _viewCertificate,
                                         ),
                                         IconButton(
                                           icon: const Icon(
