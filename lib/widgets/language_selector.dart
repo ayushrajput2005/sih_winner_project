@@ -26,12 +26,24 @@ class LanguageSelector extends StatelessWidget {
           underline: const SizedBox.shrink(),
           focusColor: Colors.transparent,
           dropdownColor: Colors.white,
+          isDense:
+              true, // Reduces internal padding for better alignment control
+          icon: const Icon(
+            Icons.arrow_drop_down,
+          ), // Explicit icon for sizing check
           style: TextStyle(color: textColor ?? Colors.black87),
           selectedItemBuilder: (context) {
             return LanguageService.supportedLanguages.map((lang) {
-              return Text(
-                lang['label'] ?? lang['code']!,
-                style: TextStyle(color: textColor ?? Colors.black87),
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  lang['label'] ?? lang['code']!,
+                  style: TextStyle(
+                    color: textColor ?? Colors.black87,
+                    fontWeight: FontWeight
+                        .w500, // Slightly bolder for better visibility
+                  ),
+                ),
               );
             }).toList();
           },
@@ -57,9 +69,11 @@ class LanguageSelector extends StatelessWidget {
           // For compact mode, show icon + text
           return Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Ensure vertical centers align
             children: [
               Icon(Icons.language, color: iconColor ?? Colors.white, size: 20),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8), // Increased spacing slightly
               dropdown,
             ],
           );
