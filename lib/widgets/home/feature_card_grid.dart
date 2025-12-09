@@ -43,47 +43,41 @@ class FeatureCardGrid extends StatelessWidget {
       builder: (context, constraints) {
         final isWide = constraints.maxWidth > 900;
 
-        // Define Groups
         final marketGroup = _FeatureGroup(
-          title: lang.t('marketplace'), // "Market"
+          title: lang.t('marketplace'),
           backgroundColor: groupBackgroundColor,
+          crossAxisCount: 3, // Force 3 columns
           children: [
             _FeatureCard(
-              title: lang.t('seedMarket'), // User wants "Buy Seeds"
+              title: lang.t('seedMarket'),
               icon: Icons.shopping_cart,
               onTap: onBuyOilseed,
             ),
             _FeatureCard(
-              title: lang.t('byproductMarket'), // "Buy ByProducts"
+              title: lang.t('byproductMarket'),
               icon: Icons.compost,
               onTap: onByproductMarket,
+            ),
+            _FeatureCard(
+              title: lang.t('listProduct'),
+              icon: Icons.add_circle_outline,
+              onTap: onSellOilseed,
             ),
           ],
         );
 
         final aiGroup = _FeatureGroup(
-          title: lang
-              .t('krishiSenseTitle')
-              .split(':')[0]
-              .trim(), // "Ai Price predictions" - using KrishiSense or custom text? User said "Ai Price predictions". I'll try to find a key or just hardcode/add key.
-          // Re-reading user request: "Ai Price predictions {seed price predictions...}"
-          // I will use a custom title or key if available. 'pricePrediction' maybe?
-          // Let's use a hardcoded string for now if no key fits perfectly, or 'marketInsights'
-          // Actually user said explicitly "Ai Price predictions". I'll check if I can add a key or just use string.
-          // For now I will use the string literal 'Ai Price predictions' if I can't find a key, but I should use the translator in LanguageService if possible.
-          // Better: I'll use the english text and let LanguageService handle fallback/dynamic update if I edit it later.
-          // Wait, I am editing Code. I can just put "Ai Price Predictions" and wrap in `t`.
+          title: lang.t('krishiSenseTitle').split(':')[0].trim(),
           backgroundColor: groupBackgroundColor,
+          crossAxisCount: 3,
           children: [
             _FeatureCard(
-              title: lang.t('seedPriceMarket'), // "Seed Price Prediction"
+              title: lang.t('seedPriceMarket'),
               icon: Icons.currency_rupee,
               onTap: onSeedPriceMarket,
             ),
             _FeatureCard(
-              title: lang.t(
-                'byproductPriceMarket',
-              ), // "Byproduct Price Prediction"
+              title: lang.t('byproductPriceMarket'),
               icon: Icons.price_change,
               onTap: onByproductPriceMarket,
             ),
@@ -93,6 +87,7 @@ class FeatureCardGrid extends StatelessWidget {
         final accountGroup = _FeatureGroup(
           title: lang.t('myAccount'),
           backgroundColor: groupBackgroundColor,
+          crossAxisCount: 3,
           children: [
             _FeatureCard(
               title: lang.t('myAccount'),
@@ -108,8 +103,9 @@ class FeatureCardGrid extends StatelessWidget {
         );
 
         final learnGroup = _FeatureGroup(
-          title: lang.t('learn'),
+          title: lang.t('learn'), // Restore title
           backgroundColor: groupBackgroundColor,
+          crossAxisCount: 1, // Single column for single button
           children: [
             _FeatureCard(
               title: lang.t('learn'),
@@ -119,23 +115,36 @@ class FeatureCardGrid extends StatelessWidget {
           ],
         );
 
-        final groups = [marketGroup, aiGroup, accountGroup, learnGroup];
+        // Group the expanded ones
+        final expandedGroups = [marketGroup, aiGroup, accountGroup];
 
         if (isWide) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: groups
-                  .map(
-                    (g) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: g,
-                      ),
+              children: [
+                ...expandedGroups.map(
+                  (g) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: g,
                     ),
-                  )
-                  .toList(),
+                  ),
+                ),
+                // Learn group takes only needed width (sized by its content + constrains)
+                // We'll give it a fixed width or rely on Child.
+                // Since _FeatureGroup uses GridView, it needs constraints.
+                // We can wrap it in a SizedBox with a width relative to screen or fixed.
+                // Or use Flexible with tight fit? No, user wants it smaller.
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: SizedBox(
+                    width: 150, // Fixed width for single button "Learn" group
+                    child: learnGroup,
+                  ),
+                ),
+              ],
             ),
           );
         }
@@ -145,14 +154,21 @@ class FeatureCardGrid extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: groups
-                .map(
-                  (g) => Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: g,
-                  ),
-                )
-                .toList(),
+            children: [
+              marketGroup,
+              aiGroup,
+              accountGroup,
+              // Use Align and SizedBox to constrain Learn group width on mobile
+              // This prevents it from being full width with a huge aspect ratio height
+              // Using LayoutBuilder to get context width if needed, or just FractionallySizedBox
+              Align(
+                alignment: Alignment.topLeft,
+                child: FractionallySizedBox(
+                  widthFactor: 0.33, // Approx 1/3 width to match other tiles
+                  child: learnGroup,
+                ),
+              ),
+            ].map((g) => Padding(padding: const EdgeInsets.only(bottom: 16), child: g)).toList(),
           ),
         );
       },
@@ -165,11 +181,13 @@ class _FeatureGroup extends StatelessWidget {
     required this.title,
     required this.backgroundColor,
     required this.children,
+    this.crossAxisCount = 2,
   });
 
   final String title;
   final Color backgroundColor;
   final List<Widget> children;
+  final int crossAxisCount;
 
   @override
   Widget build(BuildContext context) {
@@ -182,28 +200,27 @@ class _FeatureGroup extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 12),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
+          if (title.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 12),
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ),
-          ),
+          ],
           LayoutBuilder(
             builder: (context, constraints) {
-              // If group has multiple items, use Grid or Wrap?
-              // The request implies grouping.
-              // Let's use a Wrap or GridView.count with shrinkWrap
               return GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: crossAxisCount,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.2, // Adjust as needed
+                childAspectRatio: 1.1, // Slightly taller for better fill
                 children: children,
               );
             },
@@ -232,26 +249,35 @@ class _FeatureCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 32, color: theme.colorScheme.primary),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Responsive sizing based on available width
+            final size = constraints.maxWidth;
+            final iconSize = (size * 0.35).clamp(24.0, 40.0);
+            final fontSize = (size * 0.12).clamp(11.0, 14.0);
+
+            return Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: iconSize, color: theme.colorScheme.primary),
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: fontSize,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

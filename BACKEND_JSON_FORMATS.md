@@ -137,3 +137,32 @@ This document outlines the JSON formats for data exchanged with the backend (Fir
   "listingImage": "String (URL)"
 }
 ```
+
+## 6. IoT/ESP32 Integration
+
+**Endpoint:** `https://<your-domain>/api/esp32-data/`
+**Method:** `POST`
+**View:** `ESP32DataView` (in `api/views.py`)
+
+**Request Payload:**
+
+```json
+{
+  "weight": 10.5,       // Float
+  "moisture": 12.3,     // Float
+  "volume": 5.0,        // Float
+  "density": 2.1,       // Float
+  "r": 100,             // Integer
+  "g": 150,             // Integer
+  "b": 200,             // Integer
+  "score": 85.0         // Float
+}
+```
+
+**Response:**
+
+```json
+{
+  "message": "Data received"
+}
+```

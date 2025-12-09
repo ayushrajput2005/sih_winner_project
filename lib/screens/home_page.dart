@@ -123,6 +123,7 @@ class _HomePageState extends State<HomePage> {
                               onByproductMarket: _handleByproductMarket,
                               onByproductPriceMarket:
                                   _handleByproductPriceMarket,
+                              onSellOilseed: _handleListProduct,
                               onMyOrders: _handleMyOrders,
                               onLearn: _handleLearn,
                               onMyAccount: _handleMyAccount,
