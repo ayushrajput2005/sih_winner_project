@@ -34,6 +34,12 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
   String? _selectedLocation;
   bool _isLoading = false;
 
+  // Mandi Price Suggestion State
+  double? _mandiPrice;
+  bool _isFetchingMandiPrice = false;
+  String? _mandiPriceError;
+  String? _mandiPriceDate;
+
   final List<String> _categories = ['Seeds', 'Byproduct'];
 
   final List<String> _states = [
@@ -342,6 +348,69 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
     );
   }
 
+  Future<void> _fetchMandiPriceSuggestion() async {
+    final commodity = _nameController.text.trim();
+    final state = _selectedLocation;
+
+    if (commodity.isEmpty || state == null || state.isEmpty) {
+      // Clear suggestion if inputs are missing
+      if (mounted) {
+        setState(() {
+          _mandiPrice = null;
+          _mandiPriceError = null;
+          _mandiPriceDate = null;
+        });
+      }
+      return;
+    }
+
+    setState(() {
+      _isFetchingMandiPrice = true;
+      _mandiPriceError = null;
+    });
+
+    print("Triggering Mandi Price Fetch for: $commodity, $state");
+
+    try {
+      final result = await ListingService.instance.fetchMandiPrice(
+        commodity,
+        state,
+      );
+      print("Mandi Price API Result: $result");
+
+      if (!mounted) return;
+
+      if (result != null && result.containsKey('average_modal_price')) {
+        setState(() {
+          _mandiPrice = (result['average_modal_price'] as num).toDouble();
+          _mandiPriceDate = result['latest_arrival_date'];
+          _mandiPriceError = null;
+        });
+      } else if (result != null && result.containsKey('error')) {
+        setState(() {
+          _mandiPrice = null;
+          _mandiPriceError = result['error'];
+        });
+      } else {
+        setState(() {
+          _mandiPrice = null;
+          _mandiPriceError = LanguageService.instance.t('mandiPriceError');
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _mandiPrice = null;
+          _mandiPriceError = LanguageService.instance.t('mandiPriceError');
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isFetchingMandiPrice = false);
+      }
+    }
+  }
+
   Future<void> _submitListing() async {
     if (_formKey.currentState!.validate()) {
       if (_certificateBytes == null) {
@@ -482,6 +551,7 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                                       },
                                   onSelected: (String selection) {
                                     _nameController.text = selection;
+                                    _fetchMandiPriceSuggestion();
                                   },
                                   fieldViewBuilder:
                                       (
@@ -598,7 +668,35 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Quantity
+                            // Location Dropdown (Moved here)
+                            DropdownButtonFormField<String>(
+                              value: _selectedLocation,
+                              decoration: InputDecoration(
+                                labelText: LanguageService.instance.t(
+                                  'locationLabel',
+                                ),
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(Icons.location_on),
+                              ),
+                              items: _states.map((location) {
+                                return DropdownMenuItem(
+                                  value: location,
+                                  child: Text(location),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedLocation = value;
+                                });
+                                _fetchMandiPriceSuggestion();
+                              },
+                              validator: (value) => value == null
+                                  ? LanguageService.instance.t('locationLabel')
+                                  : null,
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Quantity (Moved here)
                             TextFormField(
                               controller: _quantityController,
                               decoration: InputDecoration(
@@ -643,6 +741,92 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                               },
                             ),
                             const SizedBox(height: 16),
+
+                            // Market Price Suggestion
+                            if (_isFetchingMandiPrice)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Row(
+                                  children: [
+                                    const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      LanguageService.instance.t(
+                                        'fetchingMarketData',
+                                      ),
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else if (_mandiPrice != null)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 16.0),
+                                padding: const EdgeInsets.all(12.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.blue.shade200,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.lightbulb,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          LanguageService.instance.t(
+                                            'marketSuggestion',
+                                          ),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "${LanguageService.instance.t('avgPriceIn')} $_selectedLocation: ₹${_mandiPrice!.toStringAsFixed(2)}/kg",
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                    if (_mandiPriceDate != null)
+                                      Text(
+                                        "(${LanguageService.instance.t('date')}: $_mandiPriceDate)",
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              )
+                            else if (_mandiPriceError != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Text(
+                                  _mandiPriceError!,
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
 
                             // Certificate Picker
                             Text(
@@ -742,33 +926,6 @@ class _CreateListingScreenState extends State<CreateListingScreen> {
                               ],
                             ),
                             const SizedBox(height: 16),
-
-                            // Location Dropdown
-                            DropdownButtonFormField<String>(
-                              value: _selectedLocation,
-                              decoration: InputDecoration(
-                                labelText: LanguageService.instance.t(
-                                  'locationLabel',
-                                ),
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.location_on),
-                              ),
-                              items: _states.map((location) {
-                                return DropdownMenuItem(
-                                  value: location,
-                                  child: Text(location),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedLocation = value;
-                                });
-                              },
-                              validator: (value) => value == null
-                                  ? LanguageService.instance.t('locationLabel')
-                                  : null,
-                            ),
-                            const SizedBox(height: 24),
 
                             // Submit Button
                             SizedBox(

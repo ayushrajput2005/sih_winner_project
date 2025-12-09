@@ -45,6 +45,7 @@ class Order(models.Model):
     buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     amount_token = models.DecimalField(max_digits=20, decimal_places=2) # Amount in INR
+    fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     tx_hash_deposit = models.CharField(max_length=66, null=True, blank=True)
     tx_hash_release = models.CharField(max_length=66, null=True, blank=True)

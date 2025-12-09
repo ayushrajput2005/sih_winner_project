@@ -145,3 +145,10 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #AUTH_USER_MODEL = "api.User"
+
+# External API Keys
+# Please replace 'YOUR_API_KEY_HERE' with your actual API key from data.gov.in
+DATA_GOV_IN_API_KEY = "579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b"
+
+# Gemini API Key (from Krishi Mitra)
+GEMINI_API_KEY = "AIzaSyAksnmEFH9AcjFekrCzo9p4f0mSfc-Y_74"

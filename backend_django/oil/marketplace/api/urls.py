@@ -1,4 +1,4 @@
-from .views import register, login, logout, profile, CreateproductAPIView, SeedListingAPIView, ByproductListingAPIView, SeedMarketView, ByproductMarketView, BuyProductView, ConfirmReceiptView, RefundView, MyOrdersView, GenerateCertificateView, DownloadCertificateView, ESP32DataView
+from .views import register, login, logout, profile, CreateproductAPIView, SeedListingAPIView, ByproductListingAPIView, SeedMarketView, ByproductMarketView, BuyProductView, ConfirmReceiptView, RefundView, MyOrdersView, GenerateCertificateView, DownloadCertificateView, ESP32DataView, MandiPriceView
 from django.urls import path
 
 urlpatterns=[
@@ -18,4 +18,5 @@ urlpatterns=[
     path("generate-certificate/", GenerateCertificateView.as_view()),
     path("download-certificate/<str:filename>/", DownloadCertificateView.as_view()),
     path("esp32-data/", ESP32DataView.as_view()),
+    path("mandi-price/", MandiPriceView.as_view()),
 ]
